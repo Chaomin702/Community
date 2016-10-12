@@ -38,17 +38,25 @@ public:
 	Graph generateTimeNet(Graph &g);
 	std::map<int, Community> generateCommunities(const std::string&);
 	pos calculateRc(const Community & C);
+	double updateRc(Community& C);
 	Community communityMerge(Community& c1, Community& c2);
 	std::vector<int> closelyCommunities(int id);	//id在presentBBS中的closely connected communities
 	pos minRc(std::list<int>& L);
 	pos maxRc(std::list<int>& L);
 	int mergeProcess();
-	int mergeProcess(int k);
 	Community lowestConnectCommunities(int id, std::vector<int>& nbr);	
+	void updateMergeCommunities(Community&);
+	void updateSplitCommunities(int id);
 	//在社区内,求取指定的id集的扩散节点
-	double sumDuffusionTime(std::vector<int>& duffsionSet, std::set<int>& other);
+	double optDuffusionTime(std::vector<int>& duffsionSet, std::set<int>& other, std::function<double(double,double)>);
 	pos selectDuffusionNode(Community& C);
-	double restoringProcess();
+	double restoringProcess(int k);
+	bool isMergedCommunity(int id) {
+		assert(isCommunityExist(id));
+		return communities[id].leftId >= 0 && communities[id].rightId >= 0;
+	}
+	double communityBaseAlgorithm(int k);
+	std::vector<int> diffusionNodes();
 private:
 	std::map<int,Community> communities;		
 	std::list<int> presentBBS;		

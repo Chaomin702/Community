@@ -103,7 +103,13 @@ static void test_community() {
 	Solution task("network.dat", "community.dat");
 	std::cout << task;
 	std::cout << "mergeing process" << std::endl;
-	task.mergeProcess(1);
+	auto t = task.communityBaseAlgorithm(4);
+	std::cout << "min diffusion time: " << t << "\n";
+	auto res = task.diffusionNodes();
+	std::cout << "result list:\n";
+	for (auto i : res)
+		std::cout << i << " ";
+	std::cout << std::endl;
 }
 int main(void) {
 #ifdef _WINDOWS

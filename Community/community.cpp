@@ -72,7 +72,7 @@ std::map<int, Community> Solution::generateCommunities(const std::string &filena
 	auto p = std::min_element(resVec.begin(), resVec.end(), pair_comp());
 	return std::make_pair(ids[std::distance(resVec.begin(),p)], p->second);
 }
-
+ 
  Community Solution::communityMerge(Community & c1, Community & c2){
 	 Community res((--communities.end())->first + 1);
 	 res.nodes.insert(c1.nodes.begin(), c1.nodes.end());
@@ -113,36 +113,34 @@ std::map<int, Community> Solution::generateCommunities(const std::string &filena
  }
 
  int Solution::mergeProcess(){
-	std::list<int> bbs = presentBBS;
-	Community minBBS(-1);
-	auto ca = maxRc(presentBBS);	//存疑 参数是presentBBS 还是 bbs
-	while (!bbs.empty()) {
-		auto ci = minRc(bbs);
-		auto closelys = closelyCommunities(ci.first);
-		auto candidate = lowestConnectCommunities(ci.first, closelys);
-		if (candidate.r < ca.second) {	//理想情况
-			minBBS = candidate;
-			break;
-		}
-		else {
-			if (candidate.r < minBBS.r)
-				minBBS = candidate;
-			bbs.erase(std::find(bbs.begin(), bbs.end(), ci.first));
-		}
-	}
-	communities[minBBS.id] = minBBS;
-	presentBBS.erase(std::find(presentBBS.begin(), presentBBS.end(), minBBS.leftId));
-	presentBBS.erase(std::find(presentBBS.begin(), presentBBS.end(), minBBS.rightId));
-	presentBBS.push_back(minBBS.id);
-	std::cout << minBBS.leftId << "+" << minBBS.rightId << "->" << minBBS.id << std::endl;
-	std::cout << *this;
+	 while (1) {
+		 std::list<int> bbs = presentBBS;
+		 Community minBBS(-1);
+		 auto ca = maxRc(presentBBS);	//存疑 参数是presentBBS 还是 bbs
+		 while (!bbs.empty()) {
+			 auto ci = minRc(bbs);
+			 auto closelys = closelyCommunities(ci.first);
+			 auto candidate = lowestConnectCommunities(ci.first, closelys);
+			 if (candidate.r < ca.second) {	//理想情况
+				 minBBS = candidate;
+				 break;
+			 }
+			 else {
+				 if (candidate.r < minBBS.r)
+					 minBBS = candidate;
+				 bbs.erase(std::find(bbs.begin(), bbs.end(), ci.first));
+			 }
+		 }
+		 if (minBBS.r < ca.second) {
+			 updateMergeCommunities(minBBS);
+			 std::cout << minBBS.leftId << "+" << minBBS.rightId << "->" << minBBS.id << std::endl;
+			 std::cout << *this;
+		 }
+		 else {
+			 break;		//无可合并社区
+		 }
+	 }
 	return presentBBS.size();
- }
-
- int Solution::mergeProcess(int k){
-	 while (presentBBS.size() > k)
-		 mergeProcess();
-	 return presentBBS.size();
  }
 
  Community Solution::lowestConnectCommunities(int id, std::vector<int>& nbr){
@@ -154,43 +152,94 @@ std::map<int, Community> Solution::generateCommunities(const std::string &filena
 	 return *it;
  }
 
-double Solution::sumDuffusionTime(std::vector<int>& duffsionSet, std::set<int>& other){
+ void Solution::updateMergeCommunities(Community &C){
+	 communities[C.id] = C;
+	 presentBBS.erase(std::find(presentBBS.begin(), presentBBS.end(), C.leftId));
+	 presentBBS.erase(std::find(presentBBS.begin(), presentBBS.end(), C.rightId));
+	 presentBBS.push_back(C.id);
+ }
+
+ void Solution::updateSplitCommunities(int id){
+	 assert(std::find(presentBBS.begin(), presentBBS.end(), id) != presentBBS.end());
+	 presentBBS.erase(std::find(presentBBS.begin(), presentBBS.end(), id));
+	 presentBBS.push_back(communities[id].leftId);
+	 presentBBS.push_back(communities[id].rightId);
+ }
+
+double Solution::optDuffusionTime(std::vector<int>& duffsionSet, std::set<int>& other, std::function<double(double, double)> opt){
 	std::vector<int> otherindex;
 	std::vector<std::vector<double>::const_iterator> its;
 	for (auto i : duffsionSet)
 		its.push_back(timeMat[id2index(i)].cbegin());
 	for (auto i : other)
 		otherindex.push_back(id2index(i));
-	for (std::vector<int>::size_type i = 1; i < otherindex.size(); ++i)
+	for (auto i = otherindex.size()-1; i > 0; --i)
 		otherindex[i] = otherindex[i] - otherindex[i - 1];
-	auto opt = [](std::vector<double>::const_iterator i1, std::vector<double>::const_iterator i2) {
+	auto cmp = [](std::vector<double>::const_iterator i1, std::vector<double>::const_iterator i2) {
 		return *i1 < *i2;
 	};
 	double res = 0.0;
 	for (auto i : otherindex) {
 		for (auto &t : its)
 			std::advance(t, i);
-		auto it = std::min_element(its.begin(), its.end(), opt);
-		res += **it;
+		auto it = std::min_element(its.begin(), its.end(), cmp);
+		res = opt(res, **it);
 	}
 	return res;
  }
-
+double Solution::updateRc(Community & C){
+	auto opt = [](double a, double b) {return std::max(a, b); };
+	auto t =  optDuffusionTime(C.diffusionNodes, C.nodes, opt);
+	return t;
+}
 Solution::pos Solution::selectDuffusionNode(Community & C){
-	assert(C.diffusionNodes.size() > 0);	
 	std::vector<pos> res;
 	for (auto i : C.nodes) {
 		auto temp = C.diffusionNodes;
 		temp.push_back(i);
-		auto d = sumDuffusionTime(temp, C.nodes);
+		auto d = optDuffusionTime(temp, C.nodes,std::plus<double>());
 		res.push_back(std::make_pair(i, d));
 	}
 	auto it = std::min_element(res.begin(), res.end(), pair_comp());
 	return *it;
 }
 
-double Solution::restoringProcess(){
-	
+double Solution::restoringProcess(int k){
+	assert(k >= presentBBS.size());
+	for (auto &i : communities)
+		i.second.diffusionNodes.push_back(i.second.centraNode);
+	int s = k - presentBBS.size();
+	while (s--) {
+		auto ca = maxRc(presentBBS);
+		if (isMergedCommunity(ca.first)) {
+			updateSplitCommunities(ca.first);
+		}
+		else {
+			if (communities[ca.first].diffusionNodes.size() == 1) {
+				communities[ca.first].diffusionNodes.pop_back();
+				auto t = selectDuffusionNode(communities[ca.first]);
+				communities[ca.first].diffusionNodes.push_back(t.first);
+			}
+			auto t = selectDuffusionNode(communities[ca.first]);
+			communities[ca.first].diffusionNodes.push_back(t.first);
+			communities[ca.first].r = updateRc(communities[ca.first]);
+		}
+	}
+	return maxRc(presentBBS).second;
+}
+
+double Solution::communityBaseAlgorithm(int k){
+	mergeProcess();
+	return restoringProcess(k);
+}
+
+std::vector<int> Solution::diffusionNodes(){
+	std::vector<int> res;
+	for (auto i : presentBBS) {
+		for (auto k : communities[i].diffusionNodes)
+			res.push_back(k);
+	}
+	return res;
 }
 
  bool Solution::iscloselyCommunities(int i, int j){

@@ -1,5 +1,5 @@
 # Community
 
 - [x] merging process 
-- [ ] restoring process
+- [x] restoring process
 
