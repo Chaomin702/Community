@@ -9,14 +9,14 @@ Solution::Solution(const std::string & netfile, const std::string & communityfil
 	communities = generateCommunities(communityfile);
 	timeMat = timeNet.johnson();
 	for (auto &i : communities)
-		presentBBS.push_back(i.id);	
+		presentBBS.push_back(i.first);	
 	auto L = timeNet.getNodeList();
 	for (decltype(L.size()) i = 0; i < L.size(); ++i)
 		idTable[L[0]] = i;	
 	for (auto &i : communities) {
-		auto t = calculateRc(i);
-		i.centraNode = t.first;
-		i.r = t.second;
+		auto t = calculateRc(i.first);
+		i.second.centraNode = t.first;
+		i.second.r = t.second;
 	}
 
 }
@@ -36,10 +36,10 @@ Graph Solution::generateTimeNet(Graph & g){
 	}
 	return net;
 }
-std::vector<Community> Solution::generateCommunities(const std::string &filename){
+std::map<int, Community> Solution::generateCommunities(const std::string &filename){
 	std::ifstream f(filename);
 	assert(f);
-	std::vector<Community> bbs;
+	std::map<int,Community> bbs;
 	std::map<int, std::vector<int>> id2nodes;
 	std::string line;
 	while (std::getline(f, line)) {
@@ -49,9 +49,9 @@ std::vector<Community> Solution::generateCommunities(const std::string &filename
 		id2nodes[id].push_back(n);
 	}
 	for (auto &i : id2nodes) {
-		bbs.push_back(Community(i.first));
+		bbs[i.first] = Community(i.first);
 		for (auto j : i.second)
-			bbs.back().nodes.insert(j);
+			bbs[i.first].nodes.insert(j);
 	}
 	return bbs;
 }
@@ -72,7 +72,7 @@ std::vector<Community> Solution::generateCommunities(const std::string &filename
 }
 
  Community Solution::communityMerge(Community & c1, Community & c2){
-	 Community res(communities.size());
+	 Community res((--communities.end())->first + 1);
 	 res.nodes.insert(c1.nodes.begin(), c1.nodes.end());
 	 res.nodes.insert(c2.nodes.begin(), c2.nodes.end());
 	 res.leftId = c1.id;
@@ -92,7 +92,61 @@ std::vector<Community> Solution::generateCommunities(const std::string &filename
 	 return res;
  }
 
+ Solution::pos Solution::minRc(std::list<int>& L){
+	 std::vector<pos> rcs;
+	 for (auto i : L) {
+		 rcs.push_back(std::make_pair(i, communities[i].r));
+	 }
+	 auto it = std::min_element(rcs.begin(), rcs.end(), pair_comp());
+	 return *it;
+ }
+
+ Solution::pos Solution::maxRc(std::list<int>& L){
+	 std::vector<pos> rcs;
+	 for (auto i : L) {
+		 rcs.push_back(std::make_pair(i, communities[i].r));
+	 }
+	 auto it = std::max_element(rcs.begin(), rcs.end(), pair_comp());
+	 return *it;
+ }
+
+ int Solution::mergeProcess(int k){
+	 while (presentBBS.size() > k) {
+		 std::list<int> bbs = presentBBS;
+		 Community minBBS(-1);
+		 while (!bbs.empty()) {
+			 auto ci = minRc(bbs);
+			 auto closelys = closelyCommunities(ci.first);
+			 auto candidate = lowestConnectCommunities(ci.first, closelys);
+			 auto ca = maxRc(presentBBS);	//存疑 参数是presentBBS 还是 bbs
+			 if (candidate.r < ca.second) {	//理想情况
+				 minBBS = candidate;
+				 break;
+			 }
+			 else {
+				 if (candidate.r < minBBS.r)
+					 minBBS = candidate;
+				 bbs.erase(std::find(bbs.begin(), bbs.end(), ci.first));
+			 }
+		 }
+		 communities[minBBS.id] = minBBS;
+		 presentBBS.erase(std::find(presentBBS.begin(), presentBBS.end(), minBBS.leftId));
+		 presentBBS.erase(std::find(presentBBS.begin(), presentBBS.end(), minBBS.rightId));
+		 presentBBS.push_back(minBBS.id);
+	 }
+ }
+
+ Community Solution::lowestConnectCommunities(int id, std::vector<int>& nbr){
+	 std::vector<Community> cs;
+	 for (auto i : nbr) {
+		 cs.push_back(communityMerge(communities[id], communities[i]));
+	 }
+	 auto it = std::min_element(cs.begin(), cs.end(), community_comp());
+	 return *it;
+ }
+
  bool Solution::iscloselyCommunities(int i, int j){
+	 assert(isCommunityExist(i) && isCommunityExist(j));
 	 if (i == j) return false;
 	 double w1 = 0.0, w2 = 0.0;
 	 for (auto &n : communities[i].nodes) {

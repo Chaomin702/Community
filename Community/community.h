@@ -29,21 +29,28 @@ bool operator == (const Community& c1, const Community& c2);
 class Solution {
 public:
 	using pos = std::pair<int, double>;
+
 	Solution(const std::string& netfile, const std::string& communityfile);
 	Graph generateTimeNet(Graph &g);
-	std::vector<Community> generateCommunities(const std::string&);
+	std::map<int, Community> generateCommunities(const std::string&);
 	pos calculateRc(const Community & C);
 	Community communityMerge(Community& c1, Community& c2);
 	std::vector<int> closelyCommunities(int id);	//idÔÚpresentBBSÖÐµÄclosely connected communities
-
+	pos minRc(std::list<int>& L);
+	pos maxRc(std::list<int>& L);
+	int mergeProcess(int k);
+	Community lowestConnectCommunities(int id, std::vector<int>& nbr);	
 private:
-	std::vector<Community> communities;		
+	std::map<int,Community> communities;		
 	std::list<int> presentBBS;		
 	std::list<int> unusedBBS;
 	Graph originNet;
 	Graph timeNet;
 	Graph::matrix timeMat;
 	std::map<int, int> idTable;
+	bool isCommunityExist(int id) {
+		return communities.find(id) != communities.end();
+	}
 	bool iscloselyCommunities(int i, int j);
 	int id2index(int id) {
 		auto it = idTable.find(id);
