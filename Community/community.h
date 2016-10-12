@@ -5,6 +5,7 @@
 #include <list>
 #include <string>
 #include <algorithm>
+#include <functional>
 #include "graph.h"
 
 struct Community {
@@ -13,7 +14,8 @@ struct Community {
 	int id;
 	int leftId, rightId;
 	int centraNode;
-	Community(int ID) :id(ID), r(DBL_MAX), leftId(-1), rightId(-1), centraNode(-1) {}
+	explicit Community(int ID) :id(ID), r(DBL_MAX), leftId(-1), rightId(-1), centraNode(-1) {}
+	Community() :id(-1), r(DBL_MAX), leftId(-1), rightId(-1), centraNode(-1) {}
 };
 struct pair_comp {
 	bool operator()(std::pair<int, double> t1, std::pair<int, double> t2) {
@@ -29,6 +31,7 @@ bool operator == (const Community& c1, const Community& c2);
 class Solution {
 public:
 	using pos = std::pair<int, double>;
+	friend std::ostream& operator << (std::ostream&, Solution&);
 
 	Solution(const std::string& netfile, const std::string& communityfile);
 	Graph generateTimeNet(Graph &g);
@@ -61,5 +64,7 @@ private:
 		auto it = std::max_element(b, e);
 		return std::make_pair(std::distance(b, it), *it);
 	}
-
+	//对vector的指定元素列表做比较操作 
+	pos optVec(std::vector<double>&, std::vector<int>&, std::function<bool(double, double)>);
 };
+std::ostream& operator << (std::ostream&, Solution&);

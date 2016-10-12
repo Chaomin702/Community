@@ -12,13 +12,12 @@ Solution::Solution(const std::string & netfile, const std::string & communityfil
 		presentBBS.push_back(i.first);	
 	auto L = timeNet.getNodeList();
 	for (decltype(L.size()) i = 0; i < L.size(); ++i)
-		idTable[L[0]] = i;	
+		idTable[L[i]] = i;	
 	for (auto &i : communities) {
-		auto t = calculateRc(i.first);
+		auto t = calculateRc(communities[i.first]);
 		i.second.centraNode = t.first;
 		i.second.r = t.second;
 	}
-
 }
 Graph Solution::generateTimeNet(Graph & g){
 	Graph net;
@@ -57,18 +56,20 @@ std::map<int, Community> Solution::generateCommunities(const std::string &filena
 }
 
  Solution::pos Solution::calculateRc(const Community& C){
-	std::vector<int> ids;
-	for (auto &i : C.nodes)
+	std::vector<int> ids, indexs;
+	for (auto &i : C.nodes) {
 		ids.push_back(i);
-
+		indexs.push_back(id2index(i));
+	}
+	
 	std::vector<std::pair<int, double>> resVec;
 	//计算指定行的最大值
 	for (auto i : ids) {
 		int index = id2index(i);
-		resVec.push_back(maxVec(timeMat[index].begin(), timeMat[index].end()));
+		resVec.push_back(optVec(timeMat[index], indexs, std::less<double>()));
 	}
 	auto p = std::min_element(resVec.begin(), resVec.end(), pair_comp());
-	return std::make_pair(ids[p->first], p->second);
+	return std::make_pair(ids[std::distance(resVec.begin(),p)], p->second);
 }
 
  Community Solution::communityMerge(Community & c1, Community & c2){
@@ -134,6 +135,7 @@ std::map<int, Community> Solution::generateCommunities(const std::string &filena
 		 presentBBS.erase(std::find(presentBBS.begin(), presentBBS.end(), minBBS.rightId));
 		 presentBBS.push_back(minBBS.id);
 	 }
+	 return presentBBS.size();
  }
 
  Community Solution::lowestConnectCommunities(int id, std::vector<int>& nbr){
@@ -160,6 +162,26 @@ std::map<int, Community> Solution::generateCommunities(const std::string &filena
 	 }
 	 return (w1 / communities[j].nodes.size()) >= (w2 / (originNet.nodesNum() - communities[i].nodes.size()));
  }
+Solution::pos Solution::optVec(std::vector<double>&v, std::vector<int>&p, std::function<bool(double, double)> opt){
+	assert(!p.empty() && !v.empty());
+	pos t(p[0], v[p[0]]);
+	for (auto &i : p) {
+		if (opt(t.second, v[i])) {
+			t.first = i;
+			t.second = v[i];
+		}
+	}
+	return t;
+ }
  bool operator == (const Community& c1, const Community& c2) {
 	 return c1.id == c2.id;
+ }
+
+ std::ostream & operator<<(std::ostream &os, Solution &so){
+	 os << "communities size: " << so.presentBBS.size() << "\n";
+	 os << "communities id    centre node    diffusion time" << "\n";
+	 for (auto &i : so.communities) {
+		 os << i.first << "   " << i.second.centraNode << "    " << i.second.r << "\n";
+	 }
+	 return os;
  }

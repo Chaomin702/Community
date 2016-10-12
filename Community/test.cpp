@@ -101,13 +101,15 @@ static void test_graph() {
 }
 static void test_community() {
 	Solution task("network.dat", "community.dat");
+	std::cout << task;
+	task.mergeProcess(4);
 }
 int main(void) {
 #ifdef _WINDOWS
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 #endif
 	test_graph();
-//	test_community();
+	test_community();
 	printf("%d/%d (%3.2f%%) passed\n", test_pass, test_count, test_pass * 100.0 / test_count);
 	return main_ret;
 }

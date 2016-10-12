@@ -22,7 +22,7 @@ struct Node {
 	double priority;		//Â·¾¶È¨ÖØ
 	nodeType type;
 	Node() = default;
-	Node(int ID) :id(ID), indegree(0), outdegree(0), parent(NIL), priority(DBL_MAX),type(UNDISCOVERED) {}
+	explicit Node(int ID) :id(ID), indegree(0), outdegree(0), parent(NIL), priority(DBL_MAX),type(UNDISCOVERED) {}
 };
 bool operator < (const Node& m, const Node& n);
 bool operator > (const Node& m, const Node& n);
