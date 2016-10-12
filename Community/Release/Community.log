@@ -1,0 +1,9 @@
+﻿  community.cpp
+community.cpp(116): warning C4018: '>': signed/unsigned mismatch
+  graph.cpp
+  test.cpp
+  Generating code
+  All 2112 functions were compiled because no usable IPDB/IOBJ from previous compilation was found.
+  Finished generating code
+  Community.vcxproj -> D:\InformationDiffusion\Community\Release\Community.exe
+  Community.vcxproj -> D:\InformationDiffusion\Community\Release\Community.pdb (Full PDB)

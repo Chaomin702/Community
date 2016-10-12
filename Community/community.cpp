@@ -4,6 +4,7 @@
 #include <fstream>
 #include <sstream>
 #include <algorithm>
+#include <iostream>
 Solution::Solution(const std::string & netfile, const std::string & communityfile):originNet(netfile){
 	timeNet = generateTimeNet(originNet);	
 	communities = generateCommunities(communityfile);
@@ -111,30 +112,36 @@ std::map<int, Community> Solution::generateCommunities(const std::string &filena
 	 return *it;
  }
 
+ int Solution::mergeProcess(){
+	std::list<int> bbs = presentBBS;
+	Community minBBS(-1);
+	auto ca = maxRc(presentBBS);	//存疑 参数是presentBBS 还是 bbs
+	while (!bbs.empty()) {
+		auto ci = minRc(bbs);
+		auto closelys = closelyCommunities(ci.first);
+		auto candidate = lowestConnectCommunities(ci.first, closelys);
+		if (candidate.r < ca.second) {	//理想情况
+			minBBS = candidate;
+			break;
+		}
+		else {
+			if (candidate.r < minBBS.r)
+				minBBS = candidate;
+			bbs.erase(std::find(bbs.begin(), bbs.end(), ci.first));
+		}
+	}
+	communities[minBBS.id] = minBBS;
+	presentBBS.erase(std::find(presentBBS.begin(), presentBBS.end(), minBBS.leftId));
+	presentBBS.erase(std::find(presentBBS.begin(), presentBBS.end(), minBBS.rightId));
+	presentBBS.push_back(minBBS.id);
+	std::cout << minBBS.leftId << "+" << minBBS.rightId << "->" << minBBS.id << std::endl;
+	std::cout << *this;
+	return presentBBS.size();
+ }
+
  int Solution::mergeProcess(int k){
-	 while (presentBBS.size() > k) {
-		 std::list<int> bbs = presentBBS;
-		 Community minBBS(-1);
-		 while (!bbs.empty()) {
-			 auto ci = minRc(bbs);
-			 auto closelys = closelyCommunities(ci.first);
-			 auto candidate = lowestConnectCommunities(ci.first, closelys);
-			 auto ca = maxRc(presentBBS);	//存疑 参数是presentBBS 还是 bbs
-			 if (candidate.r < ca.second) {	//理想情况
-				 minBBS = candidate;
-				 break;
-			 }
-			 else {
-				 if (candidate.r < minBBS.r)
-					 minBBS = candidate;
-				 bbs.erase(std::find(bbs.begin(), bbs.end(), ci.first));
-			 }
-		 }
-		 communities[minBBS.id] = minBBS;
-		 presentBBS.erase(std::find(presentBBS.begin(), presentBBS.end(), minBBS.leftId));
-		 presentBBS.erase(std::find(presentBBS.begin(), presentBBS.end(), minBBS.rightId));
-		 presentBBS.push_back(minBBS.id);
-	 }
+	 while (presentBBS.size() > k)
+		 mergeProcess();
 	 return presentBBS.size();
  }
 
@@ -146,6 +153,45 @@ std::map<int, Community> Solution::generateCommunities(const std::string &filena
 	 auto it = std::min_element(cs.begin(), cs.end(), community_comp());
 	 return *it;
  }
+
+double Solution::sumDuffusionTime(std::vector<int>& duffsionSet, std::set<int>& other){
+	std::vector<int> otherindex;
+	std::vector<std::vector<double>::const_iterator> its;
+	for (auto i : duffsionSet)
+		its.push_back(timeMat[id2index(i)].cbegin());
+	for (auto i : other)
+		otherindex.push_back(id2index(i));
+	for (std::vector<int>::size_type i = 1; i < otherindex.size(); ++i)
+		otherindex[i] = otherindex[i] - otherindex[i - 1];
+	auto opt = [](std::vector<double>::const_iterator i1, std::vector<double>::const_iterator i2) {
+		return *i1 < *i2;
+	};
+	double res = 0.0;
+	for (auto i : otherindex) {
+		for (auto &t : its)
+			std::advance(t, i);
+		auto it = std::min_element(its.begin(), its.end(), opt);
+		res += **it;
+	}
+	return res;
+ }
+
+Solution::pos Solution::selectDuffusionNode(Community & C){
+	assert(C.diffusionNodes.size() > 0);	
+	std::vector<pos> res;
+	for (auto i : C.nodes) {
+		auto temp = C.diffusionNodes;
+		temp.push_back(i);
+		auto d = sumDuffusionTime(temp, C.nodes);
+		res.push_back(std::make_pair(i, d));
+	}
+	auto it = std::min_element(res.begin(), res.end(), pair_comp());
+	return *it;
+}
+
+double Solution::restoringProcess(){
+	
+}
 
  bool Solution::iscloselyCommunities(int i, int j){
 	 assert(isCommunityExist(i) && isCommunityExist(j));
@@ -179,9 +225,10 @@ Solution::pos Solution::optVec(std::vector<double>&v, std::vector<int>&p, std::f
 
  std::ostream & operator<<(std::ostream &os, Solution &so){
 	 os << "communities size: " << so.presentBBS.size() << "\n";
-	 os << "communities id    centre node    diffusion time" << "\n";
-	 for (auto &i : so.communities) {
-		 os << i.first << "   " << i.second.centraNode << "    " << i.second.r << "\n";
+	 os << "id  centre  time" << "\n";
+	 for (auto &i : so.presentBBS) {
+		 assert(i == so.communities[i].id);
+		 os << i << "   " << so.communities[i].centraNode << "    " << so.communities[i].r << "\n";
 	 }
 	 return os;
  }

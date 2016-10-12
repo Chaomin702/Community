@@ -14,6 +14,7 @@ struct Community {
 	int id;
 	int leftId, rightId;
 	int centraNode;
+	std::vector<int> diffusionNodes;
 	explicit Community(int ID) :id(ID), r(DBL_MAX), leftId(-1), rightId(-1), centraNode(-1) {}
 	Community() :id(-1), r(DBL_MAX), leftId(-1), rightId(-1), centraNode(-1) {}
 };
@@ -41,8 +42,13 @@ public:
 	std::vector<int> closelyCommunities(int id);	//id在presentBBS中的closely connected communities
 	pos minRc(std::list<int>& L);
 	pos maxRc(std::list<int>& L);
+	int mergeProcess();
 	int mergeProcess(int k);
 	Community lowestConnectCommunities(int id, std::vector<int>& nbr);	
+	//在社区内,求取指定的id集的扩散节点
+	double sumDuffusionTime(std::vector<int>& duffsionSet, std::set<int>& other);
+	pos selectDuffusionNode(Community& C);
+	double restoringProcess();
 private:
 	std::map<int,Community> communities;		
 	std::list<int> presentBBS;		

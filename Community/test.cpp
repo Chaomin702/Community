@@ -102,7 +102,8 @@ static void test_graph() {
 static void test_community() {
 	Solution task("network.dat", "community.dat");
 	std::cout << task;
-	task.mergeProcess(4);
+	std::cout << "mergeing process" << std::endl;
+	task.mergeProcess(1);
 }
 int main(void) {
 #ifdef _WINDOWS
