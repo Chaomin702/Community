@@ -1,10 +1,8 @@
-﻿  community.cpp
-community.cpp(280): warning C4018: '<': signed/unsigned mismatch
-  test.cpp
+﻿  test.cpp
   Generating code
-  20 of 2480 functions ( 0.8%) were compiled, the rest were copied from previous compilation.
-    8 functions were new in current compilation
-    20 functions had inline decision re-evaluated but remain unchanged
+  123 of 2494 functions ( 4.9%) were compiled, the rest were copied from previous compilation.
+    2 functions were new in current compilation
+    85 functions had inline decision re-evaluated but remain unchanged
   Finished generating code
   Community.vcxproj -> D:\InformationDiffusion\Community\Release\Community.exe
   Community.vcxproj -> D:\InformationDiffusion\Community\Release\Community.pdb (Full PDB)

@@ -1,4 +1,3 @@
-#define _WINDOWS
 #ifdef _WINDOWS
 	#define _CRTDBG_MAP_ALLOC
 	#include <crtdbg.h>
@@ -118,12 +117,28 @@ static void test_community(int k) {
 	auto nt = task.naiveAlgorithm(k);
 	std::cout << "naive algorithm result: " << nt << std::endl;
 }
+std::vector<std::pair<double, double>> testAlgorithm() {
+	Solution task("network.dat", "community.dat");
+	int m = task.nodesNum() / 20;
+	std::vector<std::pair<double, double>> res;
+	for (int i = 1; i <= m; ++i) {
+		auto ct = task.communityBaseAlgorithm(i);
+		auto nt = task.naiveAlgorithm(i);
+		res.push_back(std::make_pair(ct, nt));
+		task.reset("community.dat");
+	}
+	return res;
+}
 int main(void) {
 #ifdef _WINDOWS
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 #endif
-	test_graph();
+//	test_graph();
+//	printf("%d/%d (%3.2f%%) passed\n", test_pass, test_count, test_pass * 100.0 / test_count);
+	auto res = testAlgorithm();
+	for (auto &i : res) {
+		std::cout << i.first << " " << i.second << "\n";
+	}
 	test_community(5);
-	printf("%d/%d (%3.2f%%) passed\n", test_pass, test_count, test_pass * 100.0 / test_count);
 	return main_ret;
 }

@@ -20,6 +20,18 @@ Solution::Solution(const std::string & netfile, const std::string & communityfil
 		i.second.r = t.second;
 	}
 }
+
+void Solution::reset(const std::string & communityfile){
+	communities = generateCommunities(communityfile);
+	presentBBS.clear();
+	for (auto &i : communities)
+		presentBBS.push_back(i.first);
+	for (auto &i : communities) {
+		auto t = calculateRc(communities[i.first]);
+		i.second.centraNode = t.first;
+		i.second.r = t.second;
+	}
+}
 Graph Solution::generateTimeNet(Graph & g){
 	Graph net;
 	std::vector<double> degrees;
@@ -137,8 +149,8 @@ std::map<int, Community> Solution::generateCommunities(const std::string &filena
 		 }
 		 if (minBBS.r <= ca.second) {
 			 updateMergeCommunities(minBBS);
-			 std::cout << minBBS.leftId << "+" << minBBS.rightId << "->" << minBBS.id << std::endl;
-			 std::cout << *this;
+//			 std::cout << minBBS.leftId << "+" << minBBS.rightId << "->" << minBBS.id << std::endl;
+//			 std::cout << *this;
 		 }
 		 else {
 			 break;		//无可合并社区
@@ -283,6 +295,7 @@ double Solution::naiveAlgorithm(int k){
 	auto t = optDuffusionTime(ids, other, opt);
 	return t;
 }
+
 
  bool Solution::iscloselyCommunities(int i, int j){
 	 assert(isCommunityExist(i) && isCommunityExist(j));

@@ -61,6 +61,8 @@ public:
 	std::vector<int> nodeBelongTo(int id);	//节点在当前队列的社区归属
 	pos closeness(int id);	//节点id的closeness
 	double naiveAlgorithm(int k);
+	int nodesNum()const { return idTable.size(); }
+	void reset(const std::string & communityfile);
 private:
 	std::map<int,Community> communities;		
 	std::list<int> presentBBS;		
