@@ -82,7 +82,8 @@ public:
 	std::list<int> shortestpath(int s, int t);
 	//计算所有节点对的最短路径权重
 	matrix johnson();
-
+	//图导出至文件
+	void exportGraph(const std::string&);
 private:
 	std::map<int, Node> nodes;
 	std::map<int, std::vector<Edge>> neighbors;

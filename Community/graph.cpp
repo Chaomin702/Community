@@ -112,6 +112,18 @@ Graph::matrix Graph::johnson(){
 	return M;
 }
 
+void Graph::exportGraph(const std::string & name){
+	std::ofstream of(name, std::ofstream::trunc);
+	of << "Source,Target,Type,Id,Weight\n";
+	int c = 1;
+	for (auto &i : neighbors) {
+		for (auto &k : i.second) {
+			of << k.source << "," << k.dest << ",Undirected," << c++ << "," << k.weight << "\n";
+		}
+	}
+	of.close();
+}
+
 bool operator < (const Node& m, const Node& n) {
 	return m.priority < n.priority;
 }

@@ -120,8 +120,12 @@ std::map<int, Community> Solution::generateCommunities(const std::string &filena
 		 while (!bbs.empty()) {
 			 auto ci = minRc(bbs);
 			 auto closelys = closelyCommunities(ci.first);
+			 if (closelys.empty()) {
+				 bbs.erase(std::find(bbs.begin(), bbs.end(), ci.first));
+				 continue;
+			 }
 			 auto candidate = lowestConnectCommunities(ci.first, closelys);
-			 if (candidate.r < ca.second) {	//理想情况
+			 if (candidate.r <= ca.second) {	//理想情况
 				 minBBS = candidate;
 				 break;
 			 }
@@ -131,7 +135,7 @@ std::map<int, Community> Solution::generateCommunities(const std::string &filena
 				 bbs.erase(std::find(bbs.begin(), bbs.end(), ci.first));
 			 }
 		 }
-		 if (minBBS.r < ca.second) {
+		 if (minBBS.r <= ca.second) {
 			 updateMergeCommunities(minBBS);
 			 std::cout << minBBS.leftId << "+" << minBBS.rightId << "->" << minBBS.id << std::endl;
 			 std::cout << *this;
@@ -144,6 +148,7 @@ std::map<int, Community> Solution::generateCommunities(const std::string &filena
  }
 
  Community Solution::lowestConnectCommunities(int id, std::vector<int>& nbr){
+	 assert(!nbr.empty());
 	 std::vector<Community> cs;
 	 for (auto i : nbr) {
 		 cs.push_back(communityMerge(communities[id], communities[i]));
@@ -240,6 +245,43 @@ std::vector<int> Solution::diffusionNodes(){
 			res.push_back(k);
 	}
 	return res;
+}
+
+void Solution::exportNet(const std::string &name){
+	timeNet.exportGraph(name);
+}
+
+std::vector<int> Solution::nodeBelongTo(int id){
+	std::vector<int> res;
+	for (auto i : presentBBS) {
+		if (communities[i].nodes.find(id) != communities[i].nodes.end())
+			res.push_back(i);
+	}
+	return res;
+}
+
+Solution::pos Solution::closeness(int id){
+	int index = id2index(id);
+	double sum = 0.0;
+	for (auto i : timeMat[index])
+		sum += i;
+	return std::make_pair(id, 1.0 / sum);
+}
+
+double Solution::naiveAlgorithm(int k){
+	std::vector<pos> res;
+	std::set<int> other;
+	for (auto i : idTable) {
+		res.push_back(closeness(i.first));
+		other.insert(i.first);
+	}
+	std::sort(res.begin(), res.end(), pair_comp());
+	std::vector<int> ids;
+	for (auto it = res.rbegin(); ids.size() < k; ++it)
+		ids.push_back(it->first);
+	auto opt = [](double a, double b) {return std::max(a, b); };
+	auto t = optDuffusionTime(ids, other, opt);
+	return t;
 }
 
  bool Solution::iscloselyCommunities(int i, int j){

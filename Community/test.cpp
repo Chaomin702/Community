@@ -99,24 +99,31 @@ static void test_graph() {
 	test_graph_dijkstra();
 	test_graph_johnson();
 }
-static void test_community() {
+static void test_community(int k) {
 	Solution task("network.dat", "community.dat");
+//	task.exportNet("timeNet.csv");
 	std::cout << task;
 	std::cout << "mergeing process" << std::endl;
-	auto t = task.communityBaseAlgorithm(4);
+	auto t = task.communityBaseAlgorithm(k);
 	std::cout << "min diffusion time: " << t << "\n";
 	auto res = task.diffusionNodes();
-	std::cout << "result list:\n";
-	for (auto i : res)
-		std::cout << i << " ";
-	std::cout << std::endl;
+	std::cout << "result list: (community id: node id)\n";
+	for (auto i : res) {
+		auto bt = task.nodeBelongTo(i);
+		for (auto j : bt)
+			std::cout << j << " ";
+		std::cout << ": ";
+		std::cout << i << " \n";
+	}
+	auto nt = task.naiveAlgorithm(k);
+	std::cout << "naive algorithm result: " << nt << std::endl;
 }
 int main(void) {
 #ifdef _WINDOWS
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 #endif
 	test_graph();
-	test_community();
+	test_community(5);
 	printf("%d/%d (%3.2f%%) passed\n", test_pass, test_count, test_pass * 100.0 / test_count);
 	return main_ret;
 }

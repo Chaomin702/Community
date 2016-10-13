@@ -1,6 +1,3 @@
 ﻿  test.cpp
-  community.cpp
-d:\informationdiffusion\community\community\community.cpp(208): warning C4018: '>=': signed/unsigned mismatch
-  Generating Code...
   Community.vcxproj -> D:\InformationDiffusion\Community\Debug\Community.exe
   Community.vcxproj -> D:\InformationDiffusion\Community\Debug\Community.pdb (Full PDB)

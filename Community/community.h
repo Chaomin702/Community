@@ -57,6 +57,10 @@ public:
 	}
 	double communityBaseAlgorithm(int k);
 	std::vector<int> diffusionNodes();
+	void exportNet(const std::string&);
+	std::vector<int> nodeBelongTo(int id);	//节点在当前队列的社区归属
+	pos closeness(int id);	//节点id的closeness
+	double naiveAlgorithm(int k);
 private:
 	std::map<int,Community> communities;		
 	std::list<int> presentBBS;		
