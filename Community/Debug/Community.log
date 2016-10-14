@@ -1,3 +1,8 @@
 ﻿  test.cpp
+  graph.cpp
+  community.cpp
+d:\informationdiffusion\community\community\community.cpp(225): warning C4018: '>=': signed/unsigned mismatch
+d:\informationdiffusion\community\community\community.cpp(292): warning C4018: '<': signed/unsigned mismatch
+  Generating Code...
   Community.vcxproj -> D:\InformationDiffusion\Community\Debug\Community.exe
   Community.vcxproj -> D:\InformationDiffusion\Community\Debug\Community.pdb (Full PDB)

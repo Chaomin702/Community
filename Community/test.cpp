@@ -136,9 +136,10 @@ int main(void) {
 //	test_graph();
 //	printf("%d/%d (%3.2f%%) passed\n", test_pass, test_count, test_pass * 100.0 / test_count);
 	auto res = testAlgorithm();
+	int k = 1;
 	for (auto &i : res) {
-		std::cout << i.first << " " << i.second << "\n";
+		std::cout << k++ << ": " << i.first << " " << i.second << "\n";
 	}
-	test_community(5);
+//	test_community(5);
 	return main_ret;
 }

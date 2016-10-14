@@ -43,7 +43,7 @@ public:
 	std::vector<int> closelyCommunities(int id);	//idÔÚpresentBBSÖÐµÄclosely connected communities
 	pos minRc(std::list<int>& L);
 	pos maxRc(std::list<int>& L);
-	int mergeProcess();
+	int mergeProcess(int k);
 	Community lowestConnectCommunities(int id, std::vector<int>& nbr);	
 	void updateMergeCommunities(Community&);
 	void updateSplitCommunities(int id);

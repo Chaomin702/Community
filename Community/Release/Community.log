@@ -1,8 +1,8 @@
 ﻿  test.cpp
   Generating code
-  123 of 2494 functions ( 4.9%) were compiled, the rest were copied from previous compilation.
-    2 functions were new in current compilation
-    85 functions had inline decision re-evaluated but remain unchanged
+  0 of 2489 functions ( 0.0%) were compiled, the rest were copied from previous compilation.
+    0 functions were new in current compilation
+    12 functions had inline decision re-evaluated but remain unchanged
   Finished generating code
   Community.vcxproj -> D:\InformationDiffusion\Community\Release\Community.exe
   Community.vcxproj -> D:\InformationDiffusion\Community\Release\Community.pdb (Full PDB)

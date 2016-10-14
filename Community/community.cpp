@@ -124,7 +124,7 @@ std::map<int, Community> Solution::generateCommunities(const std::string &filena
 	 return *it;
  }
 
- int Solution::mergeProcess(){
+ int Solution::mergeProcess(int k){
 	 while (1) {
 		 std::list<int> bbs = presentBBS;
 		 Community minBBS(-1);
@@ -147,7 +147,7 @@ std::map<int, Community> Solution::generateCommunities(const std::string &filena
 				 bbs.erase(std::find(bbs.begin(), bbs.end(), ci.first));
 			 }
 		 }
-		 if (minBBS.r <= ca.second) {
+		 if (minBBS.r <= ca.second || presentBBS.size() > k) {
 			 updateMergeCommunities(minBBS);
 //			 std::cout << minBBS.leftId << "+" << minBBS.rightId << "->" << minBBS.id << std::endl;
 //			 std::cout << *this;
@@ -246,7 +246,7 @@ double Solution::restoringProcess(int k){
 }
 
 double Solution::communityBaseAlgorithm(int k){
-	mergeProcess();
+	mergeProcess(k);
 	return restoringProcess(k);
 }
 
