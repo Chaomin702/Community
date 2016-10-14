@@ -5,6 +5,7 @@
 #include <sstream>
 #include <algorithm>
 #include <iostream>
+#include <iomanip>
 Solution::Solution(const std::string & netfile, const std::string & communityfile):originNet(netfile){
 	timeNet = generateTimeNet(originNet);	
 	communities = generateCommunities(communityfile);
@@ -125,6 +126,10 @@ std::map<int, Community> Solution::generateCommunities(const std::string &filena
  }
 
  int Solution::mergeProcess(int k){
+#ifdef PRINT
+	 int cnt = 1;
+	 std::cout << "\nmerging process...\n" << std::endl;
+#endif
 	 while (1) {
 		 std::list<int> bbs = presentBBS;
 		 Community minBBS(-1);
@@ -132,6 +137,13 @@ std::map<int, Community> Solution::generateCommunities(const std::string &filena
 		 while (!bbs.empty()) {
 			 auto ci = minRc(bbs);
 			 auto closelys = closelyCommunities(ci.first);
+#ifdef PRINT
+			 std::cout << '\n' << cnt++ << "." << '\n';
+			 std::cout << "min R(C) id: " << ci.first << "   neightbors: ";
+			 for (auto &i : closelys)
+				 std::cout << i <<"  ";
+			 std::cout << "\n";
+#endif
 			 if (closelys.empty()) {
 				 bbs.erase(std::find(bbs.begin(), bbs.end(), ci.first));
 				 continue;
@@ -149,8 +161,10 @@ std::map<int, Community> Solution::generateCommunities(const std::string &filena
 		 }
 		 if (minBBS.r <= ca.second || presentBBS.size() > k) {
 			 updateMergeCommunities(minBBS);
-//			 std::cout << minBBS.leftId << "+" << minBBS.rightId << "->" << minBBS.id << std::endl;
-//			 std::cout << *this;
+#ifdef PRINT
+			 std::cout << minBBS.leftId << "+" << minBBS.rightId << "->" << minBBS.id << std::endl;
+			 std::cout << *this;
+#endif
 		 }
 		 else {
 			 break;		//无可合并社区
@@ -222,6 +236,9 @@ Solution::pos Solution::selectDuffusionNode(Community & C){
 }
 
 double Solution::restoringProcess(int k){
+#ifdef PRINT
+	std::cout << "\nrestoring process...\n" << std::endl;
+#endif
 	assert(k >= presentBBS.size());
 	for (auto &i : communities)
 		i.second.diffusionNodes.push_back(i.second.centraNode);
@@ -229,6 +246,9 @@ double Solution::restoringProcess(int k){
 	while (s--) {
 		auto ca = maxRc(presentBBS);
 		if (isMergedCommunity(ca.first)) {
+#ifdef PRINT
+			std::cout << "\n" << ca.first << "->" << communities[ca.first].leftId << "+" << communities[ca.first].rightId << "\n";
+#endif
 			updateSplitCommunities(ca.first);
 		}
 		else {
@@ -241,6 +261,7 @@ double Solution::restoringProcess(int k){
 			communities[ca.first].diffusionNodes.push_back(t.first);
 			communities[ca.first].r = updateRc(communities[ca.first]);
 		}
+		std::cout << *this;
 	}
 	return maxRc(presentBBS).second;
 }
@@ -260,7 +281,8 @@ std::vector<int> Solution::diffusionNodes(){
 }
 
 void Solution::exportNet(const std::string &name){
-	timeNet.exportGraph(name);
+	timeNet.exportGraph("edge" + name);
+	exportNodes("nodes" + name);
 }
 
 std::vector<int> Solution::nodeBelongTo(int id){
@@ -323,16 +345,54 @@ Solution::pos Solution::optVec(std::vector<double>&v, std::vector<int>&p, std::f
 	}
 	return t;
  }
+void Solution::exportNodes(const std::string & name){
+	std::ofstream of(name,std::ofstream::trunc);
+	struct style {
+		int id; int cy; double cs; double r;
+	};
+	std::vector<style> res;
+	std::vector<double> rs;
+	of << "Id,Community,Closeness,Radius\n";
+	auto opt = [](double a, double b) {return std::max(a, b); };
+	for (auto &i : communities) {
+		for (auto &k : i.second.nodes) {
+			auto c = closeness(k);
+			auto r = optDuffusionTime(std::vector<int>(1,k), i.second.nodes, opt);
+			rs.push_back(1.0 / r);
+			res.push_back({ k,i.first,c.second,0.0 });
+			//of << k << "," << i.first << "," << c.second <<"," << 1.0/r <<"\n";
+		}
+		auto ma = std::max_element(rs.begin(), rs.end());
+		auto mi = std::min_element(rs.begin(), rs.end());
+		double m = *ma;
+		double n = *mi;
+		for (auto &i : rs) {
+			i = (i - n) / (m - n);
+		}
+		for (size_t i = 0; i < rs.size(); ++i) {
+			res[i].r = rs[i];
+		}
+		for (auto &i : res)
+			of << i.id << "," << i.cy << "," << i.cs << "," << i.r << "\n";
+		res.clear();
+		rs.clear();
+	}
+	of.close();
+}
  bool operator == (const Community& c1, const Community& c2) {
 	 return c1.id == c2.id;
  }
 
  std::ostream & operator<<(std::ostream &os, Solution &so){
 	 os << "communities size: " << so.presentBBS.size() << "\n";
-	 os << "id  centre  time" << "\n";
+	 os << "id  centre  time  diffusion-nodes" << "\n";
 	 for (auto &i : so.presentBBS) {
 		 assert(i == so.communities[i].id);
-		 os << i << "   " << so.communities[i].centraNode << "    " << so.communities[i].r << "\n";
+		 os << std::left <<std::setw(5)<< i << std::setw(5) << so.communities[i].centraNode  << std::setw(5) << std::setprecision(4) << so.communities[i].r<<"    ";
+		 if (!so.communities[i].diffusionNodes.empty())
+			 for (auto k : so.communities[i].diffusionNodes)
+				 os << k << " ";
+		 os << "\n";
 	 }
 	 return os;
  }

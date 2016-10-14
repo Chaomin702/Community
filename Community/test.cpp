@@ -9,7 +9,6 @@
 #include <list>
 #include "graph.h"
 #include "community.h"
-
 static int main_ret = 0;
 static int test_count = 0;
 static int test_pass = 0;
@@ -100,9 +99,8 @@ static void test_graph() {
 }
 static void test_community(int k) {
 	Solution task("network.dat", "community.dat");
-//	task.exportNet("timeNet.csv");
+	task.exportNet("timeNet.csv");
 	std::cout << task;
-	std::cout << "mergeing process" << std::endl;
 	auto t = task.communityBaseAlgorithm(k);
 	std::cout << "min diffusion time: " << t << "\n";
 	auto res = task.diffusionNodes();
@@ -135,11 +133,11 @@ int main(void) {
 #endif
 //	test_graph();
 //	printf("%d/%d (%3.2f%%) passed\n", test_pass, test_count, test_pass * 100.0 / test_count);
-	auto res = testAlgorithm();
-	int k = 1;
-	for (auto &i : res) {
-		std::cout << k++ << ": " << i.first << " " << i.second << "\n";
-	}
-//	test_community(5);
+	//auto res = testAlgorithm();
+	//int k = 1;
+	//for (auto &i : res) {
+	//	std::cout << k++ << ": " << i.first << " " << i.second << "\n";
+	//}
+	test_community(8);
 	return main_ret;
 }

@@ -7,7 +7,7 @@
 #include <algorithm>
 #include <functional>
 #include "graph.h"
-
+#define PRINT
 struct Community {
 	std::set<int> nodes;
 	double r;
@@ -86,5 +86,6 @@ private:
 	}
 	//对vector的指定元素列表做比较操作 
 	pos optVec(std::vector<double>&, std::vector<int>&, std::function<bool(double, double)>);
+	void exportNodes(const std::string&name);
 };
 std::ostream& operator << (std::ostream&, Solution&);
