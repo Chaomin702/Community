@@ -1,0 +1,61 @@
+\documentclass{article}
+\usepackage{clrscode}
+\title{Hello World}
+\begin{document}
+\maketitle
+\section{Hello China} China is in East Asia.
+\begin{codebox}
+\Procname {SK66-Algorithm(G)}
+\li	run Dijkstra's algorithm to calculate $D(v_i,v_j),\; \;v_{i},v{j} \in s\cup V_{s}\cup t$
+\li	let F = ($f_{\eta,i}$) be a new $|V_{s}| \times |V_{s}|$ matrix
+\li \For $i=1$ \To $|V_{s}|$						
+\li 		 \Do $F_{1,i} \gets D(v_i,v_j)$			
+		\End		                              
+\li \For $\eta=2$ \To $|V_{s}|$		
+\li 		\Do
+ 		\For $l=1$ \To $|V_{s}|$				
+\li 				\If $\eta==l$							
+\li 				\Then		continue							
+\li 				\Else $F_{\eta,l} = min(F_{\eta,l},D(v_i,v_j)+F_{\eta -1,l}) $	
+	  \End 				
+\end{codebox}
+\begin{codebox}
+\Procname{$\proc{Insertion-Sort(A)}$}
+\li \For $j \gets 2$ \To $\id{length}[A]$    \label{li:for}
+\li     \Do $\id{key} \gets A[j]$            \label{li:for-begin}
+\li         \Comment Insert $A[j]$ into the sorted sequence $A[1 \twodots j-1]$.
+\li         $i \gets j-1$
+\li         \While $i>0$ and $A[i]>\id{key}$ \label{li:while}
+\li            \Do $A[i+1] \gets A[i]$       \label{li:while-begin}
+\li                $i \gets i-1$             \label{li:while-end}
+                \End
+\li         $A[i+1] \gets \id{key}$          \label{li:for-end}
+        \End
+\end{codebox}
+\begin{codebox}
+\Procname{$\proc{Hash-Insert}(T,k)$}
+\li $i \gets 0$
+\li \Repeat
+$j \gets h(k,i)$
+\li \If $T[j] = \const{nil}$
+\li \Then $T[j]\gets k$
+\li \Return $j$
+\li \Else $i \gets i+1$
+\End
+\li \Until $i = m$
+\li \Error ‘‘hash table overflow’’
+\end{codebox}
+\begin{codebox}
+\Procname{$\proc{Dag-Shortest-Paths}(G,w,s)$}
+\li topologically sort the vertices of $G$ \label{li:dag-sp-topo-sort}
+\li $\proc{Initialize-Single-Source}(G,s)$ \label{li:dag-sp-init}
+\li \For each vertex $u$, taken in topologically sorted order
+\label{li:dag-sp-loop-begin}
+\li \Do
+\For each vertex $v \in \id{Adj}[u]$
+\label{li:dag-sp-inner-begin}
+\li \Do $\proc{Relax}(u,v,w)$ \label{li:dag-sp-loop-end}
+\End
+\End
+\end{codebox}
+\end{document}

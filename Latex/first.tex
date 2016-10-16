@@ -1,0 +1,76 @@
+\documentclass[UTF8]{ctexart}
+\usepackage[paper=a4paper,dvips,top=2.5cm,left=2.8cm,right=2.8cm,foot=1cm,bottom=3.2cm]{geometry}
+\usepackage{fancyhdr}
+\usepackage{indentfirst}
+\usepackage{enumerate}
+\usepackage{clrscode}
+\pagestyle{plain}
+\author{王超民、党妮、李晓杰}
+\title{经过指定节点集的最短路径}
+\begin{document}
+\maketitle
+\section{问题定义}
+
+给定一个带权重的有向图$G=(V,E)$，$V$为顶点集，$E$为有向边集，每一条有向边均有一个权重。对于给定的顶点$s$、$t$，以及$V$的子集$V_{s}$，寻找从$s$到$t$的不成环有向路径$P$，使得$P$经过$V_{s}$中所有的顶点(对经过$V_{s}$中节点的顺序不做要求)。\par
+若不存在这样的有向路径$P$，则输出无解，程序运行时间越短，则视为结果越优；若存在这样的有向路径$P$，则输出所得到的路径，路径的权重越小，则视为结果越优，在输出路径权重一样的前提下，程序运行时间越短，则视为结果越优。\par
+说明：\par
+\begin{enumerate}[\indent 1)]
+    \item 图中所有权重均为$\left [ 1,20 \right ]$内的整数；
+    \item 任一有向边的起点不等于终点；
+    \item 连接顶点$A$至顶点$B$的有向边可能超过一条，其权重可能一样，也可能不一样；
+    \item 该有向图的顶点不会超过600个，每个顶点出度(以该点为起点的有向边的数量)不超过8；
+    \item $V_{s}$中元素个数不超过50；
+    \item 从$s$到$t$的不成环有向路径$P$是指，$P$为由一系列有向边组成的从$s$至$t$的有向连通路径，且不允许重复经过任一节点；
+    \item 路径的权重是指所有组成该路径的所有有向边的权重之和。
+\end{enumerate}
+\section{算法描述}
+\par 给定一个有向图$G=(V,A)$，其中节点集$V=\left \{  v_{1},\dots ,v_{n}\right \}$，边集$\left \{  a_{1},\dots ,a_{m}\right \}$。对于任意一条有向边$a_{k}=\left ( v_{i},v{j} \right ),v_{i},v_{j}\in V$，$v_{i}$为起点，$v_{j}$为终点。记$p=\left \langle s\equiv v_{1},v_{2},\dots,v_{k}\equiv t \right \rangle$为从起点$s$出发至终点$t$的一条路径，其中$\left ( v_{i},v{i+1} \right )\in A,\forall i\in\left \{ 1,\dots,k-1 \right \}$，$k$是路径$p$中的节点数；记$V_{p}$为路径$p$的节点集，$A_{p}$为路径$p$的边集，$A_{p}=\cup _{\forall i \in \left \{ 1.\dots,k-1 \right \}}\left ( v_{i},v_{i+1} \right )$。边$\left (v_{i},v_{j}  \right ) \in A$的权重由函数$w\left (v_{i},v_{j}  \right )$给出，这里假设边的权重都为正数。一条路径的权重$D_{p}$为组成这条路径的所有有向边权重之和，$D_{p}=\sum _{v_{i},v_{j}\in A_{p}}w(v_{i},w_{j})$。如果对于给定的两个节点之间的路径$p$不存在，则记为空集$\left ( \o \right )$，对应的权重为无穷大。
+\subsection{SK66算法}
+Saksena和Kumar学者在1966年提出了一个基于最优准则的算法(SK66)。该算法通过选择具有最小路径权重的子路径串联而成的路径，来试图求解经过指定点集的最短路径，该算法的时间复杂度为$ \mathcal{O}\left ( \left | V_{S}+2 \right |^{2}\left | A \right |log_{2}\left | V \right | +\left | V_{S} \right |\left | V \right |log_{2}\left | V \right |\right )$ (在基于二叉堆实现的Dijkstra's算法的前提下)。\par
+SK66算法的初始化步骤：\par
+\begin{enumerate}[\indent 1)]
+	\item 计算属于$V_{S}$的所有节点对之间的最短路径，以及起点$s$到$V_{s}$中所有节点的最短路径；
+	\item 计算$V_{s}$中所有节点到终点$t$的最短路径。
+\end{enumerate}
+\par
+记$ D\left ( v_{i},v_{l} \right ) $ 为$v_{i}$到$v_{l}$的最短路径权重，其中$v_{i}\in V_{s} \cup \left \{ s \right \}$，$v_{l} \in V_{s}$；$f_{v_{i}}^{0}$为节点$v_{i}\in V_{s}$到终点$t$的最短路径权重。\par
+那么算法可以不断地迭代计算：
+\begin{equation}
+f_{v_{i}}^{\eta } = min_{v_{l}\in V_{s}}\left [ D\left ( v_{i},v_{l} \right )+f_{v_{l}}^{\eta -1} \right ],\; \; \; \; \; \; \: v_{l}\neq v_{i}
+\end{equation}
+$\eta = 1,2\dots,|V_{s}|-1$，每次迭代意味着最短子路径中至少要新加入一个特定节点。换而言之，从$v_{i}$出发，经过一个特定节点$v_{l}$，到达终点$t$的最短子路径，只有在其包含了至少$\eta$个特定节点时(不包括$v_{i}$)，它的路径权重才为$D\left ( v_{i},v_{l} \right )+f_{v_{l}}^{\eta -1}$。这一点在算法的每一步中都需要验证。\par
+算法的最后一步是计算
+\begin{equation}
+f_{v_{0}}^{\left |V_{s}  \right | } = min_{v_{l}\in V_{s}}\left [ D\left ( s,v_{l} \right )+f_{v_{l}}^{\left | V_{s} \right | -1} \right ]
+\end{equation}
+以及对应的路径。SK66算法的伪代码如下： \par
+\begin{codebox}[\indent ]
+\Procname {SK66-Algorithm(G)}
+\li	run Dijkstra's algorithm to calculate $D(v_i,v_j),\; \;v_{i},v{j} \in s\cup V_{s}\cup t$
+\li	let F = ($f_{\eta,i}$) be a new $|V_{s}| \times |V_{s}|$ matrix
+\li \For $i=1$ \To $|V_{s}|$						
+\li 		 \Do $F_{1,i} \gets D(v_i,v_j)$			
+		\End		                              
+\li \For $\eta=2$ \To $|V_{s}|$		
+\li 		\Do
+ 		\For $l=1$ \To $|V_{s}|$				
+\li 				\If $\eta==l$							
+\li 				\Then		continue							
+\li 				\Else $F_{\eta,l} = min(F_{\eta,l},D(v_i,v_j)+F_{\eta -1,l}) $	
+	  \End 				
+\end{codebox}
+\par 
+SK66算法的缺陷在于无法保证最终得到的路径是无环的。\par
+\subsection{SK算法}
+\par SK算法是在SK66算法的基础上修改得到的，通过保存更多的中间子路径，从而确保求得的路径无环的。
+\par 为了保证路径的无环性，必须确保通过公式(13)获得的最终路径和公式(12)获得的子路径是无环的。
+\par 在SK66算法的迭代过程中，根据公式(12)，对于每一个节点$v_{i} \in V_{s}$，需要选择一个新节点$v_{l} \in V_{s}$，从而得到一条从$v_{i}$到$t$的路径。然而这个过程可能过早的排除掉了一些高权值的可行子路径；同样的，此时选择的相对低权值的子路径可能会因为后续节点的不可达而被舍弃。记
+\begin{equation}
+f_{v_{i},v_{l}'}^{1} = D(v_{i},v_{l}')+f_{v_{l}'}^{0},\; \; \; v_{l}'\neq v_{i}
+\end{equation}
+\begin{equation}
+f_{v_{i},v_{l}}^{\eta} = D(v_{i},v_{l})+min_{v_{j}}f_{v_{l},v_{j}}^{\eta -1},\; \; \; v_{l}\neq v_{i},v_{j}\wedge v_{i}\neq v_{j}
+\end{equation}
+其中$\eta = 2,\dots,|V_{s}|$。这里主要的改动是：在每次迭代过程中，保存了从节点$v_{i}$到终点$t$，并且经过所有可能的中间节点$v_{l}$的所有路径，而不是在公式(12)中直接选择其中最小权重的子路径。具体来说，在SK66算法中，每次迭代结束后，对于每一个$v_{i}$只选择了一条路径；而在SK算法中，则选择了$|V_{s}| -1$条路径。
+
+\end{document}

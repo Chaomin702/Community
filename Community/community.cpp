@@ -33,6 +33,42 @@ void Solution::reset(const std::string & communityfile){
 		i.second.r = t.second;
 	}
 }
+bool Solution::isOverlapping(int x, int y){
+
+	return !overlappingNodes(x, y).empty();
+}
+std::set<int> Solution::overlappingNodes(int x, int y){
+	std::set<int> nodes;
+	assert(isCommunityExist(x) && isCommunityExist(y));
+	for (auto i : communities[x].nodes)
+		if (communities[y].nodes.find(i) != communities[y].nodes.end())
+			nodes.insert(i);
+	return nodes;
+}
+std::list<int> Solution::selectCentreNodes(){
+	std::list<int> order;
+	std::list<int> bak = presentBBS;
+	auto t = minRc(bak);
+	bak.erase(std::find(bak.begin(), bak.end(), t.first));
+	order.push_back(t.first);
+	std::set<int> excludeNodes = communities[t.first].nodes;
+	while (!bak.empty()) {
+		std::vector<pos> temp;
+		for (auto i : bak) {
+			auto r = calculateRcWithoutLapNodes(communities[i], excludeNodes);
+			temp.push_back(r);
+		}
+		auto mi = std::min_element(temp.begin(), temp.end());
+		auto it = bak.begin();
+		std::advance(it, std::distance(temp.begin(), mi));
+		communities[*it].r = mi->second;
+		communities[*it].centraNode = mi->first;
+		order.push_back(*it);
+		excludeNodes = nodesUnion(excludeNodes, communities[*it].nodes);
+		bak.erase(it);
+	}
+	return order;
+}
 Graph Solution::generateTimeNet(Graph & g){
 	Graph net;
 	std::vector<double> degrees;
@@ -58,8 +94,10 @@ std::map<int, Community> Solution::generateCommunities(const std::string &filena
 	while (std::getline(f, line)) {
 		int n, id;
 		std::stringstream ss(line);
-		ss >> n >> id;
-		id2nodes[id].push_back(n);
+		ss >> n;
+		while (ss >> id){
+			id2nodes[id].push_back(n);
+		}
 	}
 	for (auto &i : id2nodes) {
 		bbs[i.first] = Community(i.first);
@@ -75,17 +113,34 @@ std::map<int, Community> Solution::generateCommunities(const std::string &filena
 		ids.push_back(i);
 		indexs.push_back(id2index(i));
 	}
-	
-	std::vector<std::pair<int, double>> resVec;
-	//计算指定行的最大值
-	for (auto i : ids) {
-		int index = id2index(i);
-		resVec.push_back(optVec(timeMat[index], indexs, std::less<double>()));
-	}
-	auto p = std::min_element(resVec.begin(), resVec.end(), pair_comp());
-	return std::make_pair(ids[std::distance(resVec.begin(),p)], p->second);
+	return minmaxMat(ids, indexs);
 }
- 
+ Solution::pos Solution::calculateRcWithoutLapNodes(const Community & C, const std::set<int>& nodes){
+	 std::vector<int> ids, indexs;
+	 for (auto i : C.nodes) {		//此处可能需要改进 ids可以扩充一下
+		 if (nodes.find(i) != nodes.end())
+			 continue;
+		 ids.push_back(i);
+		 indexs.push_back(id2index(i));
+	 }
+	 return minmaxMat(ids, indexs);
+ }
+ Solution::pos Solution::minmaxMat(const std::vector<int>& ids, const std::vector<int>& indexs){
+	 std::vector<std::pair<int, double>> resVec;
+	 //计算指定行的最大值
+	 for (auto i : ids) {
+		 int index = id2index(i);
+		 resVec.push_back(optVec(timeMat[index], indexs, std::less<double>()));
+	 }
+	 auto p = std::min_element(resVec.begin(), resVec.end(), pair_comp());
+	 return std::make_pair(ids[std::distance(resVec.begin(), p)], p->second);
+ }
+ std::set<int> Solution::nodesUnion(const std::set<int>& s1, const std::set<int>& s2){
+	 std::set<int> res = s1;
+	 for (auto i : s2)
+		 res.insert(i);
+	 return res;
+ }
  Community Solution::communityMerge(Community & c1, Community & c2){
 	 Community res((--communities.end())->first + 1);
 	 res.nodes.insert(c1.nodes.begin(), c1.nodes.end());
@@ -240,6 +295,9 @@ double Solution::restoringProcess(int k){
 	std::cout << "\nrestoring process...\n" << std::endl;
 #endif
 	assert(k >= presentBBS.size());
+	//for overlapping community
+	presentBBS = selectCentreNodes();
+
 	for (auto &i : communities)
 		i.second.diffusionNodes.push_back(i.second.centraNode);
 	int s = k - presentBBS.size();
@@ -250,6 +308,7 @@ double Solution::restoringProcess(int k){
 			std::cout << "\n" << ca.first << "->" << communities[ca.first].leftId << "+" << communities[ca.first].rightId << "\n";
 #endif
 			updateSplitCommunities(ca.first);
+			presentBBS = selectCentreNodes();
 		}
 		else {
 			if (communities[ca.first].diffusionNodes.size() == 1) {
@@ -317,24 +376,24 @@ double Solution::naiveAlgorithm(int k){
 	auto t = optDuffusionTime(ids, other, opt);
 	return t;
 }
-
-
  bool Solution::iscloselyCommunities(int i, int j){
 	 assert(isCommunityExist(i) && isCommunityExist(j));
+	 auto nodes = overlappingNodes(i, j);
 	 if (i == j) return false;
 	 double w1 = 0.0, w2 = 0.0;
 	 for (auto &n : communities[i].nodes) {
 		 auto nbs = originNet.getNeighbors(n);
 		 for (auto &e : nbs) {
-			 if (communities[j].nodes.find(e.dest) != communities[j].nodes.end())
+			 if (communities[j].nodes.find(e.dest) != communities[j].nodes.end() &&
+				 nodes.find(e.dest) == nodes.end())
 				 w1 += e.weight;
 			 if (communities[i].nodes.find(e.dest) == communities[i].nodes.end())
 				 w2 += e.weight;
 		 }
 	 }
-	 return (w1 / communities[j].nodes.size()) >= (w2 / (originNet.nodesNum() - communities[i].nodes.size()));
+	 return (w1 / (communities[j].nodes.size()-nodes.size())) >= (w2 / (originNet.nodesNum() - communities[i].nodes.size()));
  }
-Solution::pos Solution::optVec(std::vector<double>&v, std::vector<int>&p, std::function<bool(double, double)> opt){
+Solution::pos Solution::optVec(const std::vector<double>&v, const std::vector<int>&p, std::function<bool(double, double)> opt){
 	assert(!p.empty() && !v.empty());
 	pos t(p[0], v[p[0]]);
 	for (auto &i : p) {

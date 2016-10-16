@@ -1,0 +1,25 @@
+\documentclass[UTF8]{ctexart}
+\usepackage[paper=a4paper,dvips,top=2.5cm,left=2.8cm,right=2.8cm,foot=1cm,bottom=3.2cm]{geometry}
+\usepackage{enumerate}
+\usepackage[colorlinks,linkcolor=blue,urlcolor = blue]{hyperref}
+\begin{document}
+\par 尊敬的吴老师，您好！
+\newline
+\par 我想把最近这半个月来的学习情况跟您汇报一下。
+\par 对于“经过指定节点集的最短路径”问题，我们主要的工作围绕着这篇文献“Protected shortest path visiting specified nodes”展开。目前的进度如下：
+\begin{itemize}
+\item 读了《算法导论》关于图算法的章节，并实现了其中部分算法。
+\item 大致弄懂了“Protected shortest path visiting specified nodes”的第三节内容，并对该部分的算法做了实现
+\url{https://github.com/Chaomin702/shortestPath.git}。
+\end{itemize}
+\par 目前的测试结果是：对于节点规模为200，特定节点规模为20的测例，大概能在3秒内得出结果，但结果中存在环路，且环路发生在非特定节点中。可以说我们现在得到的结果，是一个\textbf{相对较优的特定节点集排列}，但在依次连接特点节点对时，存在了环路。
+\par 论文第四节的ASK、BSK算法可以确保路径无环，但方法晦涩难懂，我们尚且只弄清楚了ASK的初始化步骤。
+\newline
+\par 过程中的收获
+\begin{itemize}
+\item 刚看那篇论文时，完全不知所云。在与党妮、李晓杰同学数次的讨论过程中，逐渐弄清楚了论文内容。正如您所说，跟他人讨论交流中，很容易打开思路。
+\item 先后将算法的运行时间从20s优化到了10s，到现在的3s，并且仍存在优化的空间(500ms内)。在这个过程中，编码的能力得到了提升。
+\item 写文档的过程中，思路得到了进一步的梳理。
+\end{itemize}
+
+\end{document}

@@ -1,0 +1,36 @@
+\documentclass[UTF8]{ctexart}
+\usepackage[paper=a4paper,dvips,top=2.5cm,left=2.8cm,right=2.8cm,foot=1cm,bottom=3.2cm]{geometry}
+\usepackage{fancyhdr}
+\usepackage{indentfirst}
+\usepackage{enumerate}
+\usepackage{clrscode}
+\usepackage{listings}
+\usepackage{amsmath}
+\usepackage{amstext}
+\lstset{language=Matlab}%代码语言使用的是matlab
+\lstset{breaklines}%自动将长的代码行换行排版
+\lstset{extendedchars=false}%解决代码跨页时，章节标题，页眉等汉字不显示的问题
+\setlength{\parskip}{0.5\baselineskip}
+\usepackage{graphicx}
+\usepackage[colorlinks,linkcolor=blue,urlcolor = blue]{hyperref}
+\DeclareGraphicsExtensions{.eps,.ps,.jpg,.bmp}
+\pagestyle{plain}
+\begin{document}
+\par 尊敬的吴老师，您好
+\newline
+\par
+这两天我继续阅读了有关信息传播动力学的几篇论文：
+\begin{enumerate}[\indent 1)]
+\item
+“Fast Information Cascade Prediction Through Spatiotemporal Decompositions”，作者提出一种方法：将转发链信息综合为一个矩阵，将该矩阵进行SVD分解得到用户特征(影响力和敏感度)，进而做一定时间内转发链长度的预测。
+\item
+“PREDICTING INFORMATION DIFFUSION VIA MATRIX FACTORIZATION BASED MODEL”中，直接从观察到的时间序列对信息传播建模。作者假设不同话题的信息具有不同的传播特征，从而对不同的话题建立传播网络，然后利用矩阵分解对已有的信息进行建模，进而预测未来的信息传播过程。
+\item
+“MODELING INFORMATION DIFFUSION DYNAMICS OVER SOCIAL NETWORKS”则考虑到了用户转发信息时的决策行为，提出了基于evolutionary game theoretic的信息传播动力学模型。
+\end{enumerate}
+\par 老师您能否给个建议，我应该哪篇论文开始深入？
+\newline
+\newline
+\par \rightline{学生王超民，2016年9月27日}
+
+\end{document}

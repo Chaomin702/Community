@@ -1,0 +1,25 @@
+This is C:\CTEX\MiKTeX\miktex\bin\makeindex.EXE, version 2.15 [MiKTeX 2.9] (kpathsea + Thai support).
+Scanning input file 说明...
+!! Input index error (file = 说明, line = 1):
+   -- Unknown index keyword \documentclass[UTF8].
+!! Input index error (file = 说明, line = 2):
+   -- Unknown index keyword \usepackage[paper=a4paper,dvips,top=2.5cm,left=2.8cm,right=2.8cm,foot=1cm,bottom=3.2cm].
+!! Input index error (file = 说明, line = 3):
+   -- Unknown index keyword \usepackage.
+!! Input index error (file = 说明, line = 4):
+   -- Unknown index keyword \usepackage[colorlinks,linkcolor=blue].
+!! Input index error (file = 说明, line = 5):
+   -- Unknown index keyword \pagestyle.
+!! Input index error (file = 说明, line = 6):
+   -- Unknown index keyword \begin.
+!! Input index error (file = 说明, line = 7):
+   -- Missing arguments -- need two (premature LFD).
+!! Input index error (file = 说明, line = 8):
+   -- Missing arguments -- need two (premature LFD).
+!! Input index error (file = 说明, line = 9):
+   -- Unknown index keyword \url.
+!! Input index error (file = 说明, line = 10):
+   -- Unknown index keyword \end.
+done (0 entries accepted, 10 rejected).
+Nothing written in 说明.ind.
+Transcript written in 说明.ilg.

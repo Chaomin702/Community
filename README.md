@@ -6,7 +6,7 @@
 
 - [x] no-overlapping community based algorithm
 
-- [ ] overlapping community based algorithm
+- [x] overlapping community based algorithm
 
 - [ ] distributed set-cover algorithm
 

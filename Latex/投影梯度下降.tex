@@ -1,0 +1,97 @@
+\documentclass[UTF8]{ctexart}
+\usepackage[paper=a4paper,dvips,top=2.5cm,left=2.8cm,right=2.8cm,foot=1cm,bottom=3.2cm]{geometry}
+\usepackage{fancyhdr}
+\usepackage{indentfirst}
+\usepackage{enumerate}
+\usepackage{clrscode}
+\usepackage{listings}
+\usepackage{amsmath}
+\usepackage{amstext}
+\lstset{language=Matlab}%代码语言使用的是matlab
+\lstset{breaklines}%自动将长的代码行换行排版
+\lstset{extendedchars=false}%解决代码跨页时，章节标题，页眉等汉字不显示的问题
+\usepackage{graphicx}
+\usepackage[colorlinks,linkcolor=blue,urlcolor = blue]{hyperref}
+\DeclareGraphicsExtensions{.eps,.ps,.jpg,.bmp}
+\pagestyle{plain}
+\begin{document}
+\par 尊敬的吴老师，您好
+\newline
+\par
+上上周的时候我联系到了论文作者，得到了数据集。我将训练过程用C++实现了一下。下面我先说一下对投影梯度下降的理解，以及遇到的一些问题。
+\par 
+论文的公式$(8)$
+\begin{equation*}
+\begin{matrix}
+\begin{aligned} 
+ \L (C) &= -\sum _{v \in V}\sum _{D_{v,i}\in \Gamma (v)}^{N}(n_{z_{v,i},D_{v,i}}log \; p(z_{v,i}\mid z_{v,i-1}, D_{v,i},\delta)) + \gamma _{I}\left \| I \right \|_{F}^{2}+\gamma _{S}\left \| S \right \|_{F}^{2} \\ 
+ &s.t.\; I_{ij}\geq 0,S_{ij}\geq 0,\forall i,j 
+\end{aligned}
+\end{matrix}
+\end{equation*}
+是一个约束优化问题。我们先考虑约束优化问题的标准形式
+\begin{equation*}
+\begin{matrix}
+\begin{aligned} 
+& min_{x \in R^{n}} && f(x) &\\ 
+& subject\; to && l_{i}\leq x_{i}\leq u_{i},& i=1,\dots,n, 
+\end{aligned}
+\end{matrix}
+\end{equation*}
+其中$f(x): R_{n}\rightarrow R$是连续可微函数，$l$和$u$分别是约束的下界和上界。投影梯度算法通过下面的式子来更新$x^{k}$得到$x^{k+1}$:
+\begin{equation*}
+x^{k+1}=P\left [ x^{k}-\alpha^{k} \nabla f(x^{k}) \right ]
+\end{equation*}
+其中
+\begin{equation*}
+P\left [ x_{i} \right ]=\left\{\begin{matrix}
+ & x_{i} & if &l_{i}<x_{i}<u_{i} \\
+ & u_{i} & if &x_{i}\geq u_{i} \\
+ & l_{i} & if &x_{i}\leq l_{i}
+\end{matrix}\right.
+\end{equation*}
+将$x_{i}$投影到了可行域。不同的梯度投影算法的区别在于步长$\alpha^{k}$的选择方式。最常用的梯度投影算法是“Armilo rule along the projection arc”。如算法$(1)$所示
+\begin{codebox}[\indent ]
+\Procname {Algorithm 1 Projected gradient for bound-constrained optimization}
+\zi  Given $0<\beta <1,0<\sigma<1$. Initialize any feasible $x^{1}$.
+\zi \Indentmore \Indentmore \kw{For} $k=1,2,\dots$
+
+\zi	\Indentmore 	$x^{k+1}=P\left [ x^{k}-\alpha^{k} \nabla f(x^{k}) \right ]$
+	\End \End \End
+\zi \Indentmore \Indentmore where $\alpha_{k}=\beta^{t_{k}}$, and $t_{k}$ is the first non-negative integer $t$ for which
+\zi \Indentmore $f(x^{k+1})-f(x^{k}) \leq \sigma \nabla f(x^{k})^{T}(x^{k+1}-x^{k}$.
+\end{codebox}
+\par 其中公式
+\begin{equation}
+f(x^{k+1})-f(x^{k}) \leq \sigma \nabla f(x^{k})^{T}(x^{k+1}-x^{k}
+\end{equation}
+保证了每次迭代下降的值足够大。通过不断尝试$1,\beta,\beta^{2},\dots$,得到$\alpha_{k}$。通常情况下，$\sigma$的取值是0.01，$\beta = 0.1$。寻找合适的$\alpha_{k}$是Algorithm $(1)$中最耗时的操作。考虑到$\alpha_{k-1}$和$\alpha_{k}$可能是相同的，有人提出了Algorithm $(2)$。
+\begin{codebox}[\indent ]
+\Procname {Algorithm 2 An improved projected gradient method}
+\zi  Given $0<\beta <1,0<\sigma<1$. Initialize any feasible $x^{1}$. Set $\alpha_{0}=1$
+\zi \Indentmore \kw{For} $k=1,2,\dots$
+\zi Assign $\alpha_{k} \leftarrow \alpha_{k-1}/ \beta$
+\zi \Indentmore \Indentmore If $\alpha_{k}$ satisfies (1), repeatedly increase it by
+\zi $\alpha_{k} \leftarrow \alpha_{k}/ \beta$
+\End 
+\zi until either $\alpha_{k}$ satisfies (1) or $x(\alpha_{k}/\beta)=x(\alpha_{k})$
+\End
+\zi \Indentmore \Indentmore Else repeatedly decrease $\alpha_{k}$ by
+\zi $\alpha_{k} \leftarrow \alpha_{k} \cdot \beta$ \End
+\zi until $\alpha_{k}$ satisfies (1) \End
+\zi \Indentmore  Set
+\zi $x^{k+1}=P\left [ x^{k}-\alpha^{k} \nabla f(x^{k}) \right ]$
+\end{codebox}
+\par 回到论文中的公式$(8)$，由于$I$和$S$只有下界约束，因此Algorithm $(2)$中的P应为
+\begin{equation*}
+P\left [ x_{i} \right ]=\left\{\begin{matrix}
+ & x_{i} & if & 0\leq x_{i} \\
+ & 0 & if & x_{i} < 0 
+\end{matrix}\right.
+\end{equation*}
+\subsubsection*{训练情况}
+\par 我选取了作者提供的training-data-1做训练，共计395832条信息链。每一次迭代下降需要耗时5s，跑了四个多小时，代价值$\L (C) $从$8.6\times 10^{6}$下降到了$7.7\times 10^{6}$。在后面的迭代下降过程中，只有几十甚至个位数的减小。
+\par 对于预测部分，作者没有详细解释，我还在摸索中。
+\newline
+\par \rightline{学生王超民，2016年5月25日}
+\end{document}

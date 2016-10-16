@@ -36,8 +36,10 @@ public:
 
 	Solution(const std::string& netfile, const std::string& communityfile);
 	Graph generateTimeNet(Graph &g);
+	//文件中读入社区，支持overlapping
 	std::map<int, Community> generateCommunities(const std::string&);
 	pos calculateRc(const Community & C);
+	pos calculateRcWithoutLapNodes(const Community&C, const std::set<int>& nodes);
 	double updateRc(Community& C);
 	Community communityMerge(Community& c1, Community& c2);
 	std::vector<int> closelyCommunities(int id);	//id在presentBBS中的closely connected communities
@@ -63,6 +65,9 @@ public:
 	double naiveAlgorithm(int k);
 	int nodesNum()const { return idTable.size(); }
 	void reset(const std::string & communityfile);
+	bool isOverlapping(int x, int y);
+	std::set<int> overlappingNodes(int x, int y);
+	std::list<int> selectCentreNodes();
 private:
 	std::map<int,Community> communities;		
 	std::list<int> presentBBS;		
@@ -74,6 +79,7 @@ private:
 	bool isCommunityExist(int id) {
 		return communities.find(id) != communities.end();
 	}
+	//邻近社区判定，包括overlapping
 	bool iscloselyCommunities(int i, int j);
 	int id2index(int id) {
 		auto it = idTable.find(id);
@@ -85,7 +91,9 @@ private:
 		return std::make_pair(std::distance(b, it), *it);
 	}
 	//对vector的指定元素列表做比较操作 
-	pos optVec(std::vector<double>&, std::vector<int>&, std::function<bool(double, double)>);
+	pos optVec(const std::vector<double>&, const std::vector<int>&, std::function<bool(double, double)>);
 	void exportNodes(const std::string&name);
+	pos minmaxMat(const std::vector<int>& ids, const std::vector<int>& indexs);
+	std::set<int> nodesUnion(const std::set<int>& s1, const std::set<int>& s2);
 };
 std::ostream& operator << (std::ostream&, Solution&);

@@ -1,0 +1,23 @@
+\documentclass[UTF8]{ctexart}
+\usepackage[paper=a4paper,dvips,top=2.5cm,left=2.8cm,right=2.8cm,foot=1cm,bottom=3.2cm]{geometry}
+\usepackage{enumerate}
+\usepackage[colorlinks,linkcolor=blue,urlcolor = blue]{hyperref}
+\begin{document}
+\par 尊敬的吴老师，您好
+\newline
+\par 暑假期间我回家考驾照，同时也把搁置了一段时间的“微博转发预测”重新过了一遍。
+\par 之前在做“转发链长度预测”仿真时，遇到的问题是计算得到的MAPE值小十倍，转发链长度波峰与真实数据差别很大。
+造成这种结果的原因，我分析如下：
+\begin{enumerate}[\indent 1)]
+\item 公式中的参数设置不合理
+\item 预测过程理解不到位
+\item 程序有bug
+\end{enumerate}
+\par 对于原因$1$：我的思路是穷举。参数一共有6个，分别设定范围和步长，我写了一个python脚本来统计所有参数组合的输出(在一台廉价云服务器上跑了20天)，取最优，但结果仍旧与论文参考值相差一个数量级。
+\par 对于原因$2$：论文中有一个公式跟我的推导结果不一致；在作者提供的数据中，有一些未说明的符号；以及最让我费解的一点：对一个“看起来”非凸的函数做梯度下降，而且下降后期出现的锯齿现象导致了庞大的计算量...我有向作者发邮件请教过这些问题(见questions.pdf)，然而石沉大海，杳无音信..
+\par 对于原因$3$：我的方法是用手工计算结果与程序结果比对，至少前几条消息的结果是一致的。
+\newline
+\par 我有些“不知所措”了，老师您能不能给个主意？
+\newline
+\par \rightline{学生王超民，2016年8月26日}
+\end{document}
