@@ -1,6 +1,6 @@
 ﻿  community.cpp
-d:\informationdiffusion\community\community\community.cpp(219): warning C4018: '>': signed/unsigned mismatch
-d:\informationdiffusion\community\community\community.cpp(299): warning C4018: '>=': signed/unsigned mismatch
-d:\informationdiffusion\community\community\community.cpp(375): warning C4018: '<': signed/unsigned mismatch
+d:\informationdiffusion\community\community\community.cpp(217): warning C4018: '>': signed/unsigned mismatch
+d:\informationdiffusion\community\community\community.cpp(297): warning C4018: '>=': signed/unsigned mismatch
+d:\informationdiffusion\community\community\community.cpp(373): warning C4018: '<': signed/unsigned mismatch
   Community.vcxproj -> D:\InformationDiffusion\Community\Debug\Community.exe
   Community.vcxproj -> D:\InformationDiffusion\Community\Debug\Community.pdb (Full PDB)

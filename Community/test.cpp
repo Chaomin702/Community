@@ -119,7 +119,7 @@ std::vector<std::pair<double, double>> testAlgorithm() {
 	Solution task("network.dat", "community.dat");
 	int m = task.nodesNum() / 20;
 	std::vector<std::pair<double, double>> res;
-	for (int i = 1; i <= m; ++i) {
+	for (int i = m; i <= m; ++i) {
 		auto ct = task.communityBaseAlgorithm(i);
 		auto nt = task.naiveAlgorithm(i);
 		res.push_back(std::make_pair(ct, nt));
@@ -133,11 +133,11 @@ int main(void) {
 #endif
 //	test_graph();
 //	printf("%d/%d (%3.2f%%) passed\n", test_pass, test_count, test_pass * 100.0 / test_count);
-	//auto res = testAlgorithm();
-	//int k = 1;
-	//for (auto &i : res) {
-	//	std::cout << k++ << ": " << i.first << " " << i.second << "\n";
-	//}
-	test_community(8);
+	auto res = testAlgorithm();
+	int k = 1;
+	for (auto &i : res) {
+		std::cout << i.first << " " << i.second << "\n";
+	}
+	//test_community(8);
 	return main_ret;
 }

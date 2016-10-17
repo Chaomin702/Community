@@ -58,7 +58,7 @@ std::list<int> Solution::selectCentreNodes(){
 			auto r = calculateRcWithoutLapNodes(communities[i], excludeNodes);
 			temp.push_back(r);
 		}
-		auto mi = std::min_element(temp.begin(), temp.end());
+		auto mi = std::min_element(temp.begin(), temp.end(), pair_comp());
 		auto it = bak.begin();
 		std::advance(it, std::distance(temp.begin(), mi));
 		communities[*it].r = mi->second;
@@ -118,9 +118,9 @@ std::map<int, Community> Solution::generateCommunities(const std::string &filena
  Solution::pos Solution::calculateRcWithoutLapNodes(const Community & C, const std::set<int>& nodes){
 	 std::vector<int> ids, indexs;
 	 for (auto i : C.nodes) {		//此处可能需要改进 ids可以扩充一下
+		 ids.push_back(i);
 		 if (nodes.find(i) != nodes.end())
 			 continue;
-		 ids.push_back(i);
 		 indexs.push_back(id2index(i));
 	 }
 	 return minmaxMat(ids, indexs);
@@ -320,7 +320,7 @@ double Solution::restoringProcess(int k){
 			communities[ca.first].diffusionNodes.push_back(t.first);
 			communities[ca.first].r = updateRc(communities[ca.first]);
 		}
-		std::cout << *this;
+		//std::cout << *this;
 	}
 	return maxRc(presentBBS).second;
 }
