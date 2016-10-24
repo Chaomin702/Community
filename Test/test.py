@@ -11,14 +11,17 @@ for i in [500,1000,2000]:
         f = open(filename,'a')
         f.write(str(i) + " " + str(j) + "\n")
         f.close()
-        for k in [x * 0.01 for x in range(0, 51, 2)]:
-            os.system("benchmark.exe "+ " -N " + str(i) + parmlist[j]+str(k*i));
-            t = os.popen("Community-naive.exe").read().strip()
-            d = os.popen("Community-improved.exe").read()
+        for k in [x * 0.01 for x in range(0, 81, 2)]:
+            os.system("./benchmark"+ " -N " + str(i) + parmlist[j]+str(k*i));
+            t = os.popen("./community-naive").read().strip()
+            d = os.popen("./improved").read().strip()
+            s = os.popen("./nooverlapping").read()
             f = open(filename,'a')
             f.write(t)
             f.write(" ")
             f.write(d)
+            f.write(" ")            
+            f.write(s)
             f.close()
 f.close()
             

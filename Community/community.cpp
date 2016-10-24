@@ -6,6 +6,7 @@
 #include <algorithm>
 #include <iostream>
 #include <iomanip>
+#include <fcntl.h>
 Solution::Solution(const std::string & netfile, const std::string & communityfile):originNet(netfile){
 	timeNet = generateTimeNet(originNet);	
 	communities = generateCommunities(communityfile);
@@ -193,6 +194,7 @@ std::map<int, Community> Solution::generateCommunities(const std::string &filena
 			 auto ci = minRc(bbs);
 			 auto closelys = closelyCommunities(ci.first);
 #ifdef PRINT
+			 exportNodes(std::to_string(cnt) + ".csv");
 			 std::cout << '\n' << cnt++ << "." << '\n';
 			 std::cout << "min R(C) id: " << ci.first << "   neightbors: ";
 			 for (auto &i : closelys)
@@ -292,11 +294,12 @@ Solution::pos Solution::selectDuffusionNode(Community & C){
 
 double Solution::restoringProcess(int k){
 #ifdef PRINT
+	int cnt = 11;
 	std::cout << "\nrestoring process...\n" << std::endl;
 #endif
 	assert(k >= presentBBS.size());
 	//for overlapping community
-	presentBBS = selectCentreNodes();
+//	presentBBS = selectCentreNodes();
 
 	for (auto &i : communities)
 		i.second.diffusionNodes.push_back(i.second.centraNode);
@@ -305,10 +308,14 @@ double Solution::restoringProcess(int k){
 		auto ca = maxRc(presentBBS);
 		if (isMergedCommunity(ca.first)) {
 #ifdef PRINT
+			
 			std::cout << "\n" << ca.first << "->" << communities[ca.first].leftId << "+" << communities[ca.first].rightId << "\n";
 #endif
 			updateSplitCommunities(ca.first);
-			presentBBS = selectCentreNodes();
+#ifdef PRINT
+			exportNodes(std::to_string(cnt++) + ".csv");
+#endif
+//			presentBBS = selectCentreNodes();
 		}
 		else {
 			if (communities[ca.first].diffusionNodes.size() == 1) {
@@ -320,7 +327,7 @@ double Solution::restoringProcess(int k){
 			communities[ca.first].diffusionNodes.push_back(t.first);
 			communities[ca.first].r = updateRc(communities[ca.first]);
 		}
-		//std::cout << *this;
+		std::cout << *this;
 	}
 	return maxRc(presentBBS).second;
 }
@@ -413,12 +420,13 @@ void Solution::exportNodes(const std::string & name){
 	std::vector<double> rs;
 	of << "Id,Community,Closeness,Radius\n";
 	auto opt = [](double a, double b) {return std::max(a, b); };
-	for (auto &i : communities) {
-		for (auto &k : i.second.nodes) {
+	for (auto &i : presentBBS) {
+		for (auto &k : communities[i].nodes) {
 			auto c = closeness(k);
-			auto r = optDuffusionTime(std::vector<int>(1,k), i.second.nodes, opt);
+			std::vector<int> temp(1, k);
+			auto r = optDuffusionTime(temp, communities[i].nodes, opt);
 			rs.push_back(1.0 / r);
-			res.push_back({ k,i.first,c.second,0.0 });
+			res.push_back({ k,i,c.second,0.0 });
 			//of << k << "," << i.first << "," << c.second <<"," << 1.0/r <<"\n";
 		}
 		auto ma = std::max_element(rs.begin(), rs.end());

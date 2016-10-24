@@ -1,10 +1,12 @@
 ﻿  community.cpp
-community.cpp(217): warning C4018: '>': signed/unsigned mismatch
-community.cpp(373): warning C4018: '<': signed/unsigned mismatch
+community.cpp(219): warning C4018: '>': signed/unsigned mismatch
+community.cpp(380): warning C4018: '<': signed/unsigned mismatch
+  graph.cpp
+  test.cpp
   Generating code
-  1 of 2528 functions ( 0.0%) were compiled, the rest were copied from previous compilation.
+  0 of 1041 functions ( 0.0%) were compiled, the rest were copied from previous compilation.
     0 functions were new in current compilation
-    1 functions had inline decision re-evaluated but remain unchanged
+    41 functions had inline decision re-evaluated but remain unchanged
   Finished generating code
   Community.vcxproj -> D:\InformationDiffusion\Community\Release\Community.exe
   Community.vcxproj -> D:\InformationDiffusion\Community\Release\Community.pdb (Full PDB)

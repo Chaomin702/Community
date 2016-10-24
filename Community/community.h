@@ -7,7 +7,7 @@
 #include <algorithm>
 #include <functional>
 #include "graph.h"
-//#define PRINT
+#define PRINT
 struct Community {
 	std::set<int> nodes;
 	double r;

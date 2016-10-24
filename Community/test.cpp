@@ -131,13 +131,13 @@ int main(void) {
 #ifdef _WINDOWS
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 #endif
-//	test_graph();
+	test_graph();
 //	printf("%d/%d (%3.2f%%) passed\n", test_pass, test_count, test_pass * 100.0 / test_count);
-	auto res = testAlgorithm();
-	int k = 1;
-	for (auto &i : res) {
-		std::cout << i.first << " " << i.second << "\n";
-	}
-	//test_community(8);
+	//auto res = testAlgorithm();
+	//int k = 1;
+	//for (auto &i : res) {
+	//	std::cout << i.first << " " << i.second << "\n";
+	//}
+//	test_community(8);
 	return main_ret;
 }
