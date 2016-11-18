@@ -7,7 +7,8 @@
 #include <iostream>
 #include <iomanip>
 #include <fcntl.h>
-Solution::Solution(const std::string & netfile, const std::string & communityfile):originNet(netfile){
+Solution::Solution(const std::string & netfile, const std::string & communityfile)
+	:originNet(netfile){
 	timeNet = generateTimeNet(originNet);	
 	communities = generateCommunities(communityfile);
 	timeMat = timeNet.johnson();
@@ -141,6 +142,34 @@ std::map<int, Community> Solution::generateCommunities(const std::string &filena
 	 for (auto i : s2)
 		 res.insert(i);
 	 return res;
+ }
+ void Solution::testKmeans() {
+	 K_Means kmeans(communities[1].nodes, timeMat, idTable);
+	 auto res = kmeans.kmeans(5);
+	 std::vector<int> cns;
+	 for (auto&i : res) {
+		 cns.push_back(i.first);
+	 }
+	 auto opt = [](double a, double b) {return std::max(a, b); };
+	 auto r = optDuffusionTime(cns, communities[1].nodes, opt);
+	 std::cout << "cluster: \n";
+	 for (auto&i : res) {
+		 std::cout << i.first << ": ";
+		 for (auto&k : i.second.first)
+			 std::cout << k << " ";
+		 std::cout << "\n";
+	 }
+	 std::cout << "\nk-means result " << r << std::endl;
+ }
+ std::vector<int> Solution::selectNodesByKmeans(int id) {
+	 assert(isCommunityExist(id));
+	 K_Means kmeans(communities[id].nodes, timeMat, idTable);
+	 auto res = kmeans.kmeans(communities[id].diffusionNodes.size() + 1);
+	 std::vector<int> cns;
+	 for (auto&i : res) {
+		 cns.push_back(i.first);
+	 }
+	 return cns;
  }
  Community Solution::communityMerge(Community & c1, Community & c2){
 	 Community res((--communities.end())->first + 1);
@@ -326,8 +355,22 @@ double Solution::restoringProcess(int k){
 			auto t = selectDuffusionNode(communities[ca.first]);
 			communities[ca.first].diffusionNodes.push_back(t.first);
 			communities[ca.first].r = updateRc(communities[ca.first]);
+
+			/*communities[ca.first].diffusionNodes = selectNodesByKmeans(ca.first);
+			communities[ca.first].r = updateRc(communities[ca.first]);*/
+
+			//if (communities[ca.first].diffusionNodes.size() == 1) {
+			//	cluters[ca.first] = std::make_shared<K_Means>(communities[ca.first].nodes, timeMat, idTable);
+			//}
+			//double r = cluters[ca.first]->splitMaxCluster();
+			//auto cls = cluters[ca.first]->getClusets();
+			//std::vector<int> cns;
+			//for (auto&i : cls)
+			//	cns.push_back(i.first);
+			//communities[ca.first].diffusionNodes = cns;
+			//communities[ca.first].r = r;
 		}
-		std::cout << *this;
+		//std::cout << *this;
 	}
 	return maxRc(presentBBS).second;
 }

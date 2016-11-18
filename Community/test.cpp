@@ -9,6 +9,7 @@
 #include <list>
 #include "graph.h"
 #include "community.h"
+#include "kmeans.h"
 static int main_ret = 0;
 static int test_count = 0;
 static int test_pass = 0;
@@ -117,9 +118,9 @@ static void test_community(int k) {
 }
 std::vector<std::pair<double, double>> testAlgorithm() {
 	Solution task("network.dat", "community.dat");
-	int m = task.nodesNum() / 20;
+	int m = task.nodesNum() / 5;
 	std::vector<std::pair<double, double>> res;
-	for (int i = m; i <= m; ++i) {
+	for (int i = 1; i <= m; ++i) {
 		auto ct = task.communityBaseAlgorithm(i);
 		auto nt = task.naiveAlgorithm(i);
 		res.push_back(std::make_pair(ct, nt));
@@ -127,17 +128,23 @@ std::vector<std::pair<double, double>> testAlgorithm() {
 	}
 	return res;
 }
+void testKmeans() {
+	Solution task("network.dat", "community.dat");
+	task.communityBaseAlgorithm(8);
+	task.testKmeans();
+}
 int main(void) {
 #ifdef _WINDOWS
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 #endif
-	test_graph();
+//	test_graph();
 //	printf("%d/%d (%3.2f%%) passed\n", test_pass, test_count, test_pass * 100.0 / test_count);
-	//auto res = testAlgorithm();
-	//int k = 1;
-	//for (auto &i : res) {
-	//	std::cout << i.first << " " << i.second << "\n";
-	//}
+//	testKmeans();
+	auto res = testAlgorithm();
+	int k = 1;
+	for (auto &i : res) {
+		std::cout << i.first << " " << i.second << "\n";
+	}
 //	test_community(8);
 	return main_ret;
 }

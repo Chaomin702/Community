@@ -1,6 +1,15 @@
-﻿  community.cpp
-d:\informationdiffusion\community\community\community.cpp(217): warning C4018: '>': signed/unsigned mismatch
-d:\informationdiffusion\community\community\community.cpp(297): warning C4018: '>=': signed/unsigned mismatch
-d:\informationdiffusion\community\community\community.cpp(373): warning C4018: '<': signed/unsigned mismatch
+﻿  graph.cpp
+  Generating Code...
+  Compiling...
+  test.cpp
+  kmeans.cpp
+d:\informationdiffusion\community\community\kmeans.cpp(51): warning C4018: '<=': signed/unsigned mismatch
+d:\informationdiffusion\community\community\kmeans.cpp(96): warning C4018: '<=': signed/unsigned mismatch
+d:\informationdiffusion\community\community\kmeans.cpp(100): warning C4244: 'initializing': conversion from 'std::chrono::system_clock::rep' to 'unsigned int', possible loss of data
+  community.cpp
+d:\informationdiffusion\community\community\community.cpp(248): warning C4018: '>': signed/unsigned mismatch
+d:\informationdiffusion\community\community\community.cpp(329): warning C4018: '>=': signed/unsigned mismatch
+d:\informationdiffusion\community\community\community.cpp(423): warning C4018: '<': signed/unsigned mismatch
+  Generating Code...
   Community.vcxproj -> D:\InformationDiffusion\Community\Debug\Community.exe
   Community.vcxproj -> D:\InformationDiffusion\Community\Debug\Community.pdb (Full PDB)

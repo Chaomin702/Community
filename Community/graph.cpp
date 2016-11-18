@@ -1,4 +1,4 @@
-#ifdef _WINDOWS
+ï»¿#ifdef _WINDOWS
 #define _CRTDBG_MAP_ALLOC
 #include <crtdbg.h>
 #endif
@@ -8,15 +8,14 @@
 #include <iostream>
 #include <string>
 #include "graph.h"
-
-
-void Graph::insert(const Node &n){
+#include <boost/heap/fibonacci_heap.hpp>
+void Graph::insert(const Node &n) {
 	if (isNodeExist(n.id))
 		return;
 	nodes[n.id] = n;
 }
 
-void Graph::insert(const Edge &e){
+void Graph::insert(const Edge &e) {
 	if (!isNodeExist(e.source))
 		insert(Node(e.source));
 	if (!isNodeExist(e.dest))
@@ -26,7 +25,7 @@ void Graph::insert(const Edge &e){
 	++getNodeRef(e.dest).indegree;
 }
 
-bool Graph::relax(int u, int v, double w){
+bool Graph::relax(int u, int v, double w) {
 	if (getNodeRef(v).priority > getNodeRef(u).priority + w) {
 		getNodeRef(v).priority = getNodeRef(u).priority + w;
 		getNodeRef(v).parent = u;
@@ -35,7 +34,7 @@ bool Graph::relax(int u, int v, double w){
 	return false;
 }
 
-Graph::Graph(const std::string &filename){
+Graph::Graph(const std::string &filename) {
 	std::ifstream f(filename);
 	assert(f);
 	std::string line;
@@ -49,8 +48,8 @@ Graph::Graph(const std::string &filename){
 	f.close();
 }
 
-double Graph::weight(int s, int t){
-	assert(isNodeExist(s) && s!=t);
+double Graph::weight(int s, int t) {
+	assert(isNodeExist(s) && s != t);
 	for (auto &i : neighbors[s]) {
 		if (i.dest == t)
 			return i.weight;
@@ -58,7 +57,7 @@ double Graph::weight(int s, int t){
 	return DBL_MAX;
 }
 
-void Graph::reset(){
+void Graph::reset() {
 	for (auto &i : nodes) {
 		i.second.parent = NIL;
 		i.second.priority = DBL_MAX;
@@ -66,31 +65,28 @@ void Graph::reset(){
 	}
 }
 
-void Graph::dijkstra(int s){
-	using fibNode = fib::node<Node>;	//fibonacci¶Ñ
+void Graph::dijkstra(int s) {
 	reset();
 	getNodeRef(s).priority = 0;
-
-	fib::FibonacciHeap<Node> Q;
-	std::map<int, fibNode*> ptrs;//±£´æfib¶ÑÖÐµÄ½ÚµãÖ¸Õë£¬·½±ãdecreaseKey´«²Î
+	boost::heap::fibonacci_heap<Node, boost::heap::compare<compare_node>> Q;
+	std::map<int, boost::heap::fibonacci_heap<Node, boost::heap::compare<compare_node>>::handle_type> ptrs;
 	for (auto &i : nodes) {
-		ptrs[i.first] = Q.insert(getNodeRef(i.first));
+		ptrs[i.first] = Q.push(getNodeRef(i.first));
 	}
-
-	while (!Q.isEmpty()) {
-		Node n = Q.getMinimum();
-		Q.removeMinimum();
+	while (!Q.empty()) {
+		auto n = Q.top();
 		int u = n.id;
 		for (auto &i : neighbors[u]) {
-			if ((UNDISCOVERED == getNodeRef(u).type) && relax(n.id, i.dest, i.weight)) {
-				Q.decreaseKey(ptrs[i.dest], getNodeRef(i.dest));
+			if ((UNDISCOVERED == getNodeRef(u).type) && relax(u, i.dest, i.weight)) {
+				Q.update(ptrs[i.dest], getNodeRef(i.dest));
 			}
 		}
 		getNodeRef(u).type = VISITED;
+		Q.pop();
 	}
 }
 
-std::list<int> Graph::shortestpath(int s, int t){
+std::list<int> Graph::shortestpath(int s, int t) {
 	std::list<int> L;
 	int parent = t;
 	while (parent != NIL) {
@@ -100,7 +96,7 @@ std::list<int> Graph::shortestpath(int s, int t){
 	return L;
 }
 
-Graph::matrix Graph::johnson(){
+Graph::matrix Graph::johnson() {
 	matrix M;
 	for (auto &i : nodes) {
 		dijkstra(i.first);
@@ -112,7 +108,31 @@ Graph::matrix Graph::johnson(){
 	return M;
 }
 
-void Graph::exportGraph(const std::string & name){
+bool operator < (const Node& m, const Node& n) {
+	return m.priority < n.priority;
+}
+bool operator<=(const Node & m, const Node & n) {
+	return m.priority <= n.priority;
+}
+bool operator>=(const Node & m, const Node & n) {
+	return m.priority >= n.priority;
+}
+bool operator > (const Node& m, const Node& n) {
+	return m.priority > n.priority;
+}
+bool operator==(const Node & m, const Node & n) {
+	return m.id == n.id;
+}
+std::ostream & operator<<(std::ostream & os, const Node & m) {
+	os << m.id << " ";
+	return os;
+}
+bool operator == (const Edge& m, const Edge&n) {
+	return m.source == n.source &&
+		m.dest == n.dest &&
+		m.weight == n.weight;
+}
+void Graph::exportGraph(const std::string & name) {
 	std::ofstream of(name, std::ofstream::trunc);
 	of << "Source,Target,Type,Id,Weight\n";
 	int c = 1;
@@ -122,16 +142,4 @@ void Graph::exportGraph(const std::string & name){
 		}
 	}
 	of.close();
-}
-
-bool operator < (const Node& m, const Node& n) {
-	return m.priority < n.priority;
-}
-bool operator > (const Node& m, const Node& n) {
-	return m.priority > n.priority;
-}
-bool operator == (const Edge& m, const Edge&n) {
-	return m.source == n.source &&
-		m.dest == n.dest &&
-		m.weight == n.weight;
 }

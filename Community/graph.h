@@ -7,7 +7,6 @@
 #include <list>
 #include <map>
 #include <unordered_set>
-#include "fibonacci.hpp"
 enum {
 	NIL = -1
 };
@@ -25,7 +24,17 @@ struct Node {
 	explicit Node(int ID) :id(ID), indegree(0), outdegree(0), parent(NIL), priority(DBL_MAX),type(UNDISCOVERED) {}
 };
 bool operator < (const Node& m, const Node& n);
+bool operator <=(const Node&m, const Node&n);
+bool operator >=(const Node&m, const Node&n);
 bool operator > (const Node& m, const Node& n);
+bool operator ==(const Node&m, const Node&n);
+struct compare_node
+{
+	bool operator()(const Node& n1, const Node& n2) const {
+		return n1.priority > n2.priority;
+	}
+};
+std::ostream& operator <<(std::ostream& os, const Node&m);
 struct Edge {
 	int source, dest;
 	double weight;
@@ -82,7 +91,7 @@ public:
 	std::list<int> shortestpath(int s, int t);
 	//计算所有节点对的最短路径权重
 	matrix johnson();
-	//图导出至文件
+	//导出为csv文件
 	void exportGraph(const std::string&);
 private:
 	std::map<int, Node> nodes;

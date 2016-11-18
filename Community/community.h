@@ -6,8 +6,10 @@
 #include <string>
 #include <algorithm>
 #include <functional>
+#include <memory>
 #include "graph.h"
-#define PRINT
+#include "kmeans.h"
+//#define PRINT
 struct Community {
 	std::set<int> nodes;
 	double r;
@@ -68,6 +70,8 @@ public:
 	bool isOverlapping(int x, int y);
 	std::set<int> overlappingNodes(int x, int y);
 	std::list<int> selectCentreNodes();
+	void testKmeans();
+	std::vector<int> selectNodesByKmeans(int id);  //community id
 private:
 	std::map<int,Community> communities;		
 	std::list<int> presentBBS;		
@@ -76,6 +80,7 @@ private:
 	Graph timeNet;
 	Graph::matrix timeMat;
 	std::map<int, int> idTable;
+	std::map<int, std::shared_ptr<K_Means>> cluters;
 	bool isCommunityExist(int id) {
 		return communities.find(id) != communities.end();
 	}
